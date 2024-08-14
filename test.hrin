@@ -1,0 +1,9 @@
+define[inc; λ[x; add[x; 1]]];
+
+progn[
+  deflocal[locvar; 111];
+  define[getvar; λ[locvar]]
+];
+
+inc[9];
+getvar[];
