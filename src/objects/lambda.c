@@ -90,7 +90,24 @@ ExprTagImpl exprLambdaImpl = {
 
 ExprTag exprLambdaTag;
 
-Scope * global = NULL;
+Scope * global = NULL; // TODO
+
+void * newLambda(Region * region, Array vars, void * value) {
+    ExprLambda * retval = newExpr(region, exprLambdaTag);
+    retval->scope = newScope(global); // TODO
+    retval->vars  = vars;
+    retval->value = value;
+
+    Scope * curr = region->scope;
+    while (curr != NULL) {
+        if (curr->lexical)
+            copyScope(retval->scope, curr);
+
+        curr = curr->next;
+    }
+
+    return retval;
+}
 
 void * externLambda(Region * region, Array * xs) {
     if (xs->size <= 0) return throw(TypeErrorTag, "no arguments were given");
@@ -105,8 +122,6 @@ void * externLambda(Region * region, Array * xs) {
         }
     }
 
-    ExprLambda * retval = newExpr(region, exprLambdaTag);
-
     Array vars = newArray(xs->size - 1);
 
     for (size_t j = 0; j < xs->size - 1; j++) {
@@ -114,19 +129,7 @@ void * externLambda(Region * region, Array * xs) {
         setArray(&vars, j, dup(i->value));
     }
 
-    retval->scope = newScope(global); // TODO
-    retval->vars  = vars;
-    retval->value = getArray(xs, xs->size - 1);
-
-    Scope * curr = region->scope;
-    while (curr != NULL) {
-        if (curr->lexical)
-            copyScope(retval->scope, curr);
-
-        curr = curr->next;
-    }
-
-    return retval;
+    return newLambda(region, vars, getArray(xs, xs->size - 1));
 }
 
 void initLambdaTag(Region * region) {

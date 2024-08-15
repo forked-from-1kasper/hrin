@@ -19,32 +19,49 @@ size_t lengthList(void * value) {
     return length;
 }
 
+Array * expandList(void * value) {
+    if (tagof(value) == exprNilTag)
+        return emptyArray();
+
+    if (tagof(value) != exprListTag)
+        return NULL;
+
+    size_t size = lengthList(value);
+
+    Array * retval = emptyArray();
+    extendArray(retval, size);
+
+    ExprList * curr = (ExprList *) value;
+    for (size_t i = 0; i < size; i++) {
+        setArray(retval, i, curr->car);
+        curr = (ExprList *) curr->cdr;
+    }
+
+    if (tagof(curr) == exprNilTag) return retval;
+
+    freeArray(retval);
+    free(retval);
+    return NULL;
+}
+
 static void * evalList(Region * region, void * value) {
     ExprList * expr = value;
 
     Expr * headval = eval(region, expr->car);
     if (headval == NULL) return NULL;
 
-    size_t argn = lengthList(expr->cdr);
-    Array argbuf = newArray(argn);
+    Array * argbuf = expandList(expr->cdr);
 
-    extendArray(&argbuf, argn);
+    if (argbuf == NULL) {
+        char * buf = show(expr->cdr);
+        throw(TypeErrorTag, "%s expected to be an argument list", buf);
+        free(buf);
 
-    ExprList * curr = (ExprList *) expr->cdr;
-
-    for (size_t i = 0; i < argn; i++) {
-        setArray(&argbuf, i, curr->car);
-        curr = (ExprList *) curr->cdr;
+        return NULL;
     }
 
-    Expr * retval = NULL;
-
-    if (tagof(curr) != exprNilTag) goto finally;
-
-    Array argarr = sliceArray(&argbuf, 0, argn);
-    retval = apply(region, headval, &argarr);
-
-    finally: freeArray(&argbuf); return retval;
+    void * retval = apply(region, headval, argbuf);
+    freeArray(argbuf); free(argbuf); return retval;
 }
 
 static char * showList(void * value) {

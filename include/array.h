@@ -11,6 +11,9 @@ typedef struct {
 Array newArray(size_t);
 void freeArray(Array *);
 
+static inline Array * emptyArray()
+{ return calloc(1, sizeof(Array)); }
+
 static inline void extendArray(Array * A, size_t size) {
     if (A->size < size) {
         A->data = realloc(A->data, size * sizeof(void *));
