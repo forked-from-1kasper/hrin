@@ -3,12 +3,14 @@
 
 #include <expr.h>
 
-typedef struct { Expr _expr; int value; } ExprInteger;
+typedef long long int Integer;
+
+typedef struct { Expr _expr; Integer value; } ExprInteger;
 
 extern ExprTag     exprIntegerTag;
 extern ExprTagImpl exprIntegerImpl;
 
-static inline void * newInteger(Region * region, int value) {
+static inline void * newInteger(Region * region, Integer value) {
     ExprInteger * retval = newExpr(region, exprIntegerTag);
     if (retval == NULL) return NULL;
 

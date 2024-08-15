@@ -9,7 +9,7 @@ static char * showInteger(void * value) {
     ExprInteger * expr = value;
 
     char * retbuf = malloc(12);
-    sprintf(retbuf, "%d", expr->value);
+    sprintf(retbuf, "%lld", expr->value);
 
     return retbuf;
 }
@@ -34,7 +34,7 @@ ExprTagImpl exprIntegerImpl = {
 ExprTag exprIntegerTag;
 
 void * externAdd(Region * region, Array * xs) {
-    int intval = 0;
+    Integer intval = 0;
 
     for (size_t i = 0; i < xs->size; i++) {
         Expr * argval = eval(region, getArray(xs, i));
