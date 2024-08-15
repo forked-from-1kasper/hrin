@@ -9,4 +9,6 @@ extern ExprNil     exprNil;
 extern ExprTag     exprNilTag;
 extern ExprTagImpl exprNilImpl;
 
+void initNilTag(Region *);
+
 #endif

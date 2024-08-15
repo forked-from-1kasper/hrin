@@ -26,3 +26,10 @@ ExprTagImpl exprNilImpl = {
 
 ExprTag exprNilTag;
 ExprNil exprNil;
+
+void initNilTag(Region * region) {
+    exprNilTag = newExprTag(exprNilImpl);
+
+    newExprImmortal(exprNilTag, &exprNil, NULL);
+    setVar(region->scope, "nil", &exprNil);
+}

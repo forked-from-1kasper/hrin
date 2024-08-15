@@ -18,4 +18,6 @@ static inline void * newExtern(Region * region, Extern * value) {
     return retval;
 }
 
+void initExternTag(Region *);
+
 #endif

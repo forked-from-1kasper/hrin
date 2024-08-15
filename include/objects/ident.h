@@ -17,4 +17,6 @@ static inline void * newIdent(Region * region, char * buf) {
     return retval;
 }
 
+void initIdentTag(Region *);
+
 #endif

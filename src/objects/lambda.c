@@ -5,6 +5,8 @@
 #include <trie.h>
 
 #include <objects/lambda.h>
+#include <objects/extern.h>
+#include <objects/ident.h>
 
 static void * applyLambda(Region * region, void * value, Array * xs) {
     ExprLambda * expr = value;
@@ -87,3 +89,49 @@ ExprTagImpl exprLambdaImpl = {
 };
 
 ExprTag exprLambdaTag;
+
+Scope * global = NULL;
+
+void * externLambda(Region * region, Array * xs) {
+    if (xs->size <= 0) return throw(TypeErrorTag, "no arguments were given");
+
+    for (size_t i = 0; i < xs->size - 1; i++) {
+        if (tagof(getArray(xs, i)) != exprIdentTag) {
+            char * buf = show(getArray(xs, i));
+            throw(TypeErrorTag, "%s expected to be an ident", buf);
+            free(buf);
+
+            return NULL;
+        }
+    }
+
+    ExprLambda * retval = newExpr(region, exprLambdaTag);
+
+    Array vars = newArray(xs->size - 1);
+
+    for (size_t j = 0; j < xs->size - 1; j++) {
+        ExprIdent * i = getArray(xs, j);
+        setArray(&vars, j, dup(i->value));
+    }
+
+    retval->scope = newScope(global); // TODO
+    retval->vars  = vars;
+    retval->value = getArray(xs, xs->size - 1);
+
+    Scope * curr = region->scope;
+    while (curr != NULL) {
+        if (curr->lexical)
+            copyScope(retval->scope, curr);
+
+        curr = curr->next;
+    }
+
+    return retval;
+}
+
+void initLambdaTag(Region * region) {
+    global = region->scope;
+
+    exprLambdaTag = newExprTag(exprLambdaImpl);
+    setVar(region->scope, "λ", newExtern(region, externLambda));
+}

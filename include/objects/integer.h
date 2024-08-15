@@ -17,4 +17,6 @@ static inline void * newInteger(Region * region, int value) {
     return retval;
 }
 
+void initIntegerTag(Region *);
+
 #endif

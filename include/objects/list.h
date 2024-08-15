@@ -20,4 +20,6 @@ static inline void * newList(Region * region, void * car, void * cdr) {
 
 size_t lengthList(void *);
 
+void initListTag(Region *);
+
 #endif

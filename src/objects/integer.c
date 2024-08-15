@@ -3,6 +3,7 @@
 #include <common.h>
 
 #include <objects/integer.h>
+#include <objects/extern.h>
 
 static char * showInteger(void * value) {
     ExprInteger * expr = value;
@@ -31,3 +32,30 @@ ExprTagImpl exprIntegerImpl = {
 };
 
 ExprTag exprIntegerTag;
+
+void * externAdd(Region * region, Array * xs) {
+    int intval = 0;
+
+    for (size_t i = 0; i < xs->size; i++) {
+        Expr * argval = eval(region, getArray(xs, i));
+        if (argval == NULL) return NULL;
+
+        if (tagof(argval) == exprIntegerTag)
+            intval += ((ExprInteger *) argval)->value;
+        else {
+            char * argvalbuf = show(argval);
+            throw(TypeErrorTag, "%s expected to be an integer", argvalbuf);
+            free(argvalbuf);
+
+            return NULL;
+        }
+    }
+
+    return newInteger(region, intval);
+}
+
+void initIntegerTag(Region * region) {
+    exprIntegerTag = newExprTag(exprIntegerImpl);
+
+    setVar(region->scope, "add", newExtern(region, externAdd));
+}

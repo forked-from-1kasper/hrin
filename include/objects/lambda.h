@@ -8,4 +8,6 @@ typedef struct { Expr _expr; Scope * scope; Array vars; void * value; } ExprLamb
 extern ExprTag     exprLambdaTag;
 extern ExprTagImpl exprLambdaImpl;
 
+void initLambdaTag(Region *);
+
 #endif

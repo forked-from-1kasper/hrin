@@ -33,3 +33,9 @@ ExprTagImpl exprIdentImpl = {
 };
 
 ExprTag exprIdentTag;
+
+void initIdentTag(Region * region) {
+    UNUSED(region);
+
+    exprIdentTag = newExprTag(exprIdentImpl);
+}

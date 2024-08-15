@@ -4,6 +4,7 @@
 #include <common.h>
 #include <array.h>
 
+#include <objects/extern.h>
 #include <objects/list.h>
 #include <objects/nil.h>
 
@@ -84,3 +85,72 @@ ExprTagImpl exprListImpl = {
 };
 
 ExprTag exprListTag;
+
+
+void * externList(Region * region, Array * xs) {
+    void * retval = &exprNil;
+
+    for (size_t i = 1; i <= xs->size; i++) {
+        Expr * o = eval(region, getArray(xs, xs->size - i));
+        if (o == NULL) return NULL;
+
+        retval = newList(region, o, retval);
+    }
+
+    return retval;
+}
+
+void * externCar(Region * region, Array * xs) {
+    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+
+    void * o = eval(region, getArray(xs, 0));
+    if (o == NULL) return NULL;
+
+    if (tagof(o) != exprListTag) {
+        char * buf = show(o);
+        throw(TypeErrorTag, "%s expected to be a list", buf);
+        free(buf);
+
+        return NULL;
+    }
+
+    ExprList * val = o; return val->car;
+}
+
+void * externCdr(Region * region, Array * xs) {
+    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+
+    void * o = eval(region, getArray(xs, 0));
+    if (o == NULL) return NULL;
+
+    if (tagof(o) != exprListTag) {
+        char * buf = show(o);
+        throw(TypeErrorTag, "%s expected to be a list", buf);
+        free(buf);
+
+        return NULL;
+    }
+
+    ExprList * val = o; return val->cdr;
+}
+
+void * externCons(Region * region, Array * xs) {
+    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+
+    void * car = eval(region, getArray(xs, 0));
+    if (car == NULL) return NULL;
+
+    void * cdr = eval(region, getArray(xs, 1));
+    if (cdr == NULL) return NULL;
+
+    return newList(region, car, cdr);
+}
+
+void initListTag(Region * region) {
+    exprListTag = newExprTag(exprListImpl);
+
+    setVar(region->scope, "list", newExtern(region, externList));
+    setVar(region->scope, "car",  newExtern(region, externCar));
+    setVar(region->scope, "cdr",  newExtern(region, externCdr));
+    setVar(region->scope, "cons", newExtern(region, externCons));
+}

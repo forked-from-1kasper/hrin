@@ -32,3 +32,9 @@ ExprTagImpl exprStringImpl = {
 };
 
 ExprTag exprStringTag;
+
+void initStringTag(Region * region) {
+    UNUSED(region);
+
+    exprStringTag = newExprTag(exprStringImpl);
+}

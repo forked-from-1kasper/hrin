@@ -35,3 +35,9 @@ ExprTagImpl exprExternImpl = {
 };
 
 ExprTag exprExternTag;
+
+void initExternTag(Region * region) {
+    UNUSED(region);
+
+    exprExternTag = newExprTag(exprExternImpl);
+}
