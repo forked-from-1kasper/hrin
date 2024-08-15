@@ -5,6 +5,7 @@
 #include <error.h>
 #include <expr.h>
 
+#include <objects/boolean.h>
 #include <objects/integer.h>
 #include <objects/extern.h>
 #include <objects/string.h>
@@ -175,6 +176,18 @@ void * externCdr(Region * region, Array * xs) {
     ExprList * val = o; return val->cdr;
 }
 
+void * externCons(Region * region, Array * xs) {
+    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+
+    void * car = eval(region, getArray(xs, 0));
+    if (car == NULL) return NULL;
+
+    void * cdr = eval(region, getArray(xs, 1));
+    if (cdr == NULL) return NULL;
+
+    return newList(region, car, cdr);
+}
+
 void * externQuote(Region * region, Array * xs) {
     UNUSED(region);
 
@@ -277,8 +290,11 @@ int main(int argc, char * argv[]) {
     setVar(rootRegion->scope, "list",     newExtern(rootRegion, externList));
     setVar(rootRegion->scope, "car",      newExtern(rootRegion, externCar));
     setVar(rootRegion->scope, "cdr",      newExtern(rootRegion, externCdr));
+    setVar(rootRegion->scope, "cons",     newExtern(rootRegion, externCons));
     setVar(rootRegion->scope, "quote",    newExtern(rootRegion, externQuote));
     setVar(rootRegion->scope, "eval",     newExtern(rootRegion, externEval));
+
+    initBooleanTag(rootRegion);
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");

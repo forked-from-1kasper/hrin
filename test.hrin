@@ -7,3 +7,6 @@ progn[
 
 inc[9];
 getvar[];
+
+deflocal[var1; 55];
+define[var2; var1];
