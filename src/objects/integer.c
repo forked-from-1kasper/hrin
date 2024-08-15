@@ -8,7 +8,7 @@
 static char * showInteger(void * value) {
     ExprInteger * expr = value;
 
-    char * retbuf = malloc(12);
+    char * retbuf = malloc(21);
     sprintf(retbuf, "%lld", expr->value);
 
     return retbuf;
