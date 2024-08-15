@@ -92,6 +92,11 @@ void delete(void * value) {
     free(value);
 }
 
+bool equal(void * value1, void * value2) {
+    if (tagof(value1) != tagof(value2)) return false;
+    return exprTagImpl[tagof(value1)].equal(value1, value2);
+}
+
 void move(Region * dest, Expr * o) {
     Region * src = o->owner;
 
@@ -148,6 +153,10 @@ void * evalNf(Region * region, void * value) {
     UNUSED(region);
 
     return value;
+}
+
+bool equalByRef(void * value1, void * value2) {
+    return value1 == value2;
 }
 
 void * applyThrowError(Region * region, void * x, Array * xs) {

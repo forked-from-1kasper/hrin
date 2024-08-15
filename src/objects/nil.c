@@ -21,6 +21,7 @@ ExprTagImpl exprNilImpl = {
     .show   = showNil,
     .delete = deleteNil,
     .move   = moveNil,
+    .equal  = equalByRef,
     .size   = sizeof(ExprNil)
 };
 

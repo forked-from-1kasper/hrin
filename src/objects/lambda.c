@@ -85,6 +85,7 @@ ExprTagImpl exprLambdaImpl = {
     .show   = showLambda,
     .delete = deleteLambda,
     .move   = moveLambda,
+    .equal  = equalByRef,
     .size   = sizeof(ExprLambda)
 };
 

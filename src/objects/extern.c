@@ -31,6 +31,7 @@ ExprTagImpl exprExternImpl = {
     .show   = showExtern,
     .delete = deleteExtern,
     .move   = moveExtern,
+    .equal  = equalByRef,
     .size   = sizeof(ExprExtern)
 };
 

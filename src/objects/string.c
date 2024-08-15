@@ -22,12 +22,18 @@ static void moveString(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
 }
 
+static bool equalString(void * value1, void * value2) {
+    ExprString * expr1 = value1, * expr2 = value2;
+    return strcmp(expr1->value, expr2->value) == 0;
+}
+
 ExprTagImpl exprStringImpl = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showString,
     .delete = deleteString,
     .move   = moveString,
+    .equal  = equalString,
     .size   = sizeof(ExprString)
 };
 

@@ -31,10 +31,11 @@ typedef int ExprTag;
 typedef struct { ExprTag tag; Region * owner; } Expr;
 
 typedef struct {
-    void * (* eval)(Region *, void *);
-    void * (* apply)(Region *, void *, Array *);
-    char * (* show)(void *);
     void (* move)(Region * dest, Region * src, void *);
+    void * (* apply)(Region *, void *, Array *);
+    void * (* eval)(Region *, void *);
+    bool (* equal)(void *, void *);
+    char * (* show)(void *);
     void (* delete)(void *);
     size_t size;
 } ExprTagImpl;
@@ -48,6 +49,7 @@ void newExprImmortal(ExprTag, ...);
 
 void * apply(Region *, void *, Array *);
 void * eval(Region *, void *);
+bool equal(void *, void *);
 void move(Region *, Expr *);
 void delete(void *);
 char * show(void *);
@@ -73,6 +75,7 @@ static inline void copyScope(Scope * dest, Scope * src)
 { copyTrie(&dest->context, &src->context); }
 
 void * evalNf(Region *, void *);
+bool equalByRef(void *, void *);
 void * applyThrowError(Region *, void *, Array *);
 
 #endif

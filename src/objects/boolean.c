@@ -22,6 +22,7 @@ ExprTagImpl exprBooleanImpl = {
     .show   = showBoolean,
     .delete = deleteBoolean,
     .move   = moveBoolean,
+    .equal  = equalByRef,
     .size   = sizeof(ExprBoolean)
 };
 
@@ -79,6 +80,18 @@ void * externIte(Region * region, Array * xs) {
     return NULL;
 }
 
+void * externEqual(Region * region, Array * xs) {
+    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+
+    void * o1 = eval(region, getArray(xs, 0));
+    if (o1 == NULL) return NULL;
+
+    void * o2 = eval(region, getArray(xs, 1));
+    if (o2 == NULL) return NULL;
+
+    return equal(o1, o2) ? &exprTrue : &exprFalse;
+}
+
 void initBooleanTag(Region * region) {
     exprBooleanTag = newExprTag(exprBooleanImpl);
 
@@ -90,4 +103,5 @@ void initBooleanTag(Region * region) {
     setVar(region->scope, "andalso", newExtern(region, externAndalso));
     setVar(region->scope, "orelse",  newExtern(region, externOrelse));
     setVar(region->scope, "ite",     newExtern(region, externIte));
+    setVar(region->scope, "equal?",  newExtern(region, externEqual));
 }

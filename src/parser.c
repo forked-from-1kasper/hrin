@@ -62,7 +62,7 @@ void * takeExpr(Region * region, FILE * stream) {
 
             void * headval = NULL;
 
-            if (isdigit(outbuf[0])) {
+            if (isdigit(outbuf[0]) || outbuf[0] == '-' || outbuf[0] == '+') {
                 char * endptr; long long int num = strtoll(outbuf, &endptr, 10);
                 if (endptr[0] == '\0') headval = newInteger(region, num);
                 else throw(SyntaxErrorTag, "invalid integer: %s", outbuf);

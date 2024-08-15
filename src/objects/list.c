@@ -92,17 +92,22 @@ static void moveList(Region * dest, Region * src, void * value) {
     move(dest, expr->cdr);
 }
 
+static bool equalList(void * value1, void * value2) {
+    ExprList * expr1 = value1, * expr2 = value2;
+    return equal(expr1->car, expr2->car) && equal(expr2->cdr, expr2->cdr);
+}
+
 ExprTagImpl exprListImpl = {
     .eval   = evalList,
     .apply  = applyThrowError,
     .show   = showList,
     .delete = deleteList,
     .move   = moveList,
+    .equal  = equalList,
     .size   = sizeof(ExprList)
 };
 
 ExprTag exprListTag;
-
 
 void * externList(Region * region, Array * xs) {
     void * retval = &exprNil;

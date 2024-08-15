@@ -1,4 +1,5 @@
-define[inc; λ[x; add[x; 1]]];
+define[inc; λ[x; addi[x; +1]]];
+define[dec; λ[x; addi[x; -1]]];
 
 progn[
   deflocal[locvar; 111];
@@ -10,3 +11,5 @@ getvar[];
 
 deflocal[var1; 55];
 define[var2; var1];
+
+define[fact; λ[n; ite[equal?[n; 0]; 1; muli[n; fact[dec[n]]]]]];
