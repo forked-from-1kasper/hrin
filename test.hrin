@@ -13,3 +13,12 @@ deflocal[var1; 55];
 define[var2; var1];
 
 define[fact; λ[n; ite[equal?[n; 0]; 1; muli[n; fact[dec[n]]]]]];
+
+define[x; cons[nil; nil]];
+
+deflocal[X; 14];
+deflocal[Y; 88];
+
+setcar![x; X];
+setcdr![x; Y];
+

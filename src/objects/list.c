@@ -94,7 +94,7 @@ static void moveList(Region * dest, Region * src, void * value) {
 
 static bool equalList(void * value1, void * value2) {
     ExprList * expr1 = value1, * expr2 = value2;
-    return equal(expr1->car, expr2->car) && equal(expr2->cdr, expr2->cdr);
+    return value1 == value2 || (equal(expr1->car, expr2->car) && equal(expr2->cdr, expr2->cdr));
 }
 
 static ExprTagImpl exprListImpl = {
@@ -122,10 +122,8 @@ void * externList(Region * region, Array * xs) {
     return retval;
 }
 
-void * externCar(Region * region, Array * xs) {
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
-
-    void * o = eval(region, getArray(xs, 0));
+static inline void * evalEnsureList(Region * region, void * value) {
+    void * o = eval(region, value);
     if (o == NULL) return NULL;
 
     if (tagof(o) != exprListTag) {
@@ -136,24 +134,25 @@ void * externCar(Region * region, Array * xs) {
         return NULL;
     }
 
-    ExprList * val = o; return val->car;
+    return o;
+}
+
+void * externCar(Region * region, Array * xs) {
+    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+
+    ExprList * listval = evalEnsureList(region, getArray(xs, 0));
+    if (listval == NULL) return NULL;
+
+    return listval->car;
 }
 
 void * externCdr(Region * region, Array * xs) {
     if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
 
-    void * o = eval(region, getArray(xs, 0));
-    if (o == NULL) return NULL;
+    ExprList * listval = evalEnsureList(region, getArray(xs, 0));
+    if (listval == NULL) return NULL;
 
-    if (tagof(o) != exprListTag) {
-        char * buf = show(o);
-        throw(TypeErrorTag, "%s expected to be a list", buf);
-        free(buf);
-
-        return NULL;
-    }
-
-    ExprList * val = o; return val->cdr;
+    return listval->cdr;
 }
 
 void * externCons(Region * region, Array * xs) {
@@ -168,11 +167,41 @@ void * externCons(Region * region, Array * xs) {
     return newList(region, car, cdr);
 }
 
+void * externSetcar(Region * region, Array * xs) {
+    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+
+    ExprList * listval = evalEnsureList(region, getArray(xs, 0));
+    if (listval == NULL) return NULL;
+
+    void * car = eval(region, getArray(xs, 1));
+    if (car == NULL) return NULL;
+
+    move(ownerof(listval), car);
+    listval->car = car;
+    return &exprNil;
+}
+
+void * externSetcdr(Region * region, Array * xs) {
+    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+
+    ExprList * listval = evalEnsureList(region, getArray(xs, 0));
+    if (listval == NULL) return NULL;
+
+    void * cdr = eval(region, getArray(xs, 1));
+    if (cdr == NULL) return NULL;
+
+    move(ownerof(listval), cdr);
+    listval->cdr = cdr;
+    return &exprNil;
+}
+
 void initListTag(Region * region) {
     exprListTag = newExprTag(exprListImpl);
 
-    setVar(region->scope, "list", newExtern(region, externList));
-    setVar(region->scope, "car",  newExtern(region, externCar));
-    setVar(region->scope, "cdr",  newExtern(region, externCdr));
-    setVar(region->scope, "cons", newExtern(region, externCons));
+    setVar(region->scope, "list",    newExtern(region, externList));
+    setVar(region->scope, "car",     newExtern(region, externCar));
+    setVar(region->scope, "cdr",     newExtern(region, externCdr));
+    setVar(region->scope, "cons",    newExtern(region, externCons));
+    setVar(region->scope, "setcar!", newExtern(region, externSetcar));
+    setVar(region->scope, "setcdr!", newExtern(region, externSetcdr));
 }
