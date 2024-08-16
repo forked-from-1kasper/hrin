@@ -8,7 +8,7 @@
 
 #include <objects/integer.h>
 #include <objects/string.h>
-#include <objects/ident.h>
+#include <objects/atom.h>
 #include <objects/list.h>
 #include <objects/nil.h>
 
@@ -68,7 +68,7 @@ void * takeExpr(Region * region, FILE * stream) {
                 else throw(SyntaxErrorTag, "invalid integer: %s", outbuf);
 
                 free(outbuf);
-            } else headval = newIdent(region, outbuf);
+            } else headval = newAtom(region, outbuf);
 
             int nextToken = popToken(stream);
 
@@ -81,7 +81,7 @@ void * takeExpr(Region * region, FILE * stream) {
         }
 
         if (token == TokenLbracket) {
-            void * headval = newIdent(region, dup("list"));
+            void * headval = newAtom(region, dup("list"));
             return takeExprSepBy1(region, stream, headval, TokenSemicolon, TokenRbracket);
         }
 

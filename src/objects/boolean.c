@@ -89,7 +89,7 @@ void * externEqual(Region * region, Array * xs) {
     void * o2 = eval(region, getArray(xs, 1));
     if (o2 == NULL) return NULL;
 
-    return equal(o1, o2) ? &exprTrue : &exprFalse;
+    return newBool(equal(o1, o2));
 }
 
 void initBooleanTag(Region * region) {

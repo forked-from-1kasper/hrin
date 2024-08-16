@@ -10,4 +10,7 @@ extern ExprBoolean exprTrue, exprFalse;
 extern ExprTag exprBooleanTag;
 void initBooleanTag(Region *);
 
+static inline void * newBool(bool value)
+{ return value ? &exprTrue : &exprFalse; }
+
 #endif

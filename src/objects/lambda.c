@@ -6,7 +6,7 @@
 
 #include <objects/lambda.h>
 #include <objects/extern.h>
-#include <objects/ident.h>
+#include <objects/atom.h>
 
 static void * applyLambda(Region * region, void * value, Array * xs) {
     ExprLambda * expr = value;
@@ -114,9 +114,9 @@ void * externLambda(Region * region, Array * xs) {
     if (xs->size <= 0) return throw(TypeErrorTag, "no arguments were given");
 
     for (size_t i = 0; i < xs->size - 1; i++) {
-        if (tagof(getArray(xs, i)) != exprIdentTag) {
+        if (tagof(getArray(xs, i)) != exprAtomTag) {
             char * buf = show(getArray(xs, i));
-            throw(TypeErrorTag, "%s expected to be an ident", buf);
+            throw(TypeErrorTag, "%s expected to be an atom", buf);
             free(buf);
 
             return NULL;
@@ -126,7 +126,7 @@ void * externLambda(Region * region, Array * xs) {
     Array vars = newArray(xs->size - 1);
 
     for (size_t j = 0; j < xs->size - 1; j++) {
-        ExprIdent * i = getArray(xs, j);
+        ExprAtom * i = getArray(xs, j);
         setArray(&vars, j, dup(i->value));
     }
 

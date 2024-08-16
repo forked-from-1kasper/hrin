@@ -10,7 +10,7 @@
 #include <objects/extern.h>
 #include <objects/string.h>
 #include <objects/lambda.h>
-#include <objects/ident.h>
+#include <objects/atom.h>
 #include <objects/list.h>
 #include <objects/nil.h>
 
@@ -21,11 +21,11 @@ Region * rootRegion = NULL;
 
 void * externDefine(Region * region, Array * xs) {
     if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
-    ExprIdent * i = getArray(xs, 0);
+    ExprAtom * i = getArray(xs, 0);
 
-    if (tagof(i) != exprIdentTag) {
+    if (tagof(i) != exprAtomTag) {
         char * ibuf = show(i);
-        throw(TypeErrorTag, "%s expected to be an ident", ibuf);
+        throw(TypeErrorTag, "%s expected to be an atom", ibuf);
         free(ibuf);
 
         return NULL;
@@ -42,11 +42,11 @@ void * externDefine(Region * region, Array * xs) {
 
 void * externDeflocal(Region * region, Array * xs) {
     if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
-    ExprIdent * i = getArray(xs, 0);
+    ExprAtom * i = getArray(xs, 0);
 
-    if (tagof(i) != exprIdentTag) {
+    if (tagof(i) != exprAtomTag) {
         char * ibuf = show(i);
-        throw(TypeErrorTag, "%s expected to be an ident", ibuf);
+        throw(TypeErrorTag, "%s expected to be an atom", ibuf);
         free(ibuf);
 
         return NULL;
@@ -159,7 +159,7 @@ int main(int argc, char * argv[]) {
     initNilTag(rootRegion);
     initListTag(rootRegion);
     initBooleanTag(rootRegion);
-    initIdentTag(rootRegion);
+    initAtomTag(rootRegion);
     initIntegerTag(rootRegion);
     initStringTag(rootRegion);
     initLambdaTag(rootRegion);
