@@ -5,10 +5,9 @@
 
 typedef struct { Expr _expr; } ExprNil;
 
-extern ExprNil     exprNil;
-extern ExprTag     exprNilTag;
-extern ExprTagImpl exprNilImpl;
+extern ExprNil exprNil;
 
+extern ExprTag exprNilTag;
 void initNilTag(Region *);
 
 #endif

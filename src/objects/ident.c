@@ -28,7 +28,7 @@ static bool equalIdent(void * value1, void * value2) {
     return strcmp(expr1->value, expr2->value) == 0;
 }
 
-ExprTagImpl exprIdentImpl = {
+static ExprTagImpl exprIdentImpl = {
     .eval   = evalIdent,
     .apply  = applyThrowError,
     .show   = showIdent,

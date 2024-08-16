@@ -5,9 +5,7 @@
 
 typedef struct { Expr _expr; Scope * scope; Array vars; void * value; } ExprLambda;
 
-extern ExprTag     exprLambdaTag;
-extern ExprTagImpl exprLambdaImpl;
-
+extern ExprTag exprLambdaTag;
 void initLambdaTag(Region *);
 
 #endif

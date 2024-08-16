@@ -27,7 +27,7 @@ static bool equalInteger(void * value1, void * value2) {
     return expr1->value == expr2->value;
 }
 
-ExprTagImpl exprIntegerImpl = {
+static ExprTagImpl exprIntegerImpl = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showInteger,

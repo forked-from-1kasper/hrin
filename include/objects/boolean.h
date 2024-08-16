@@ -6,9 +6,8 @@
 typedef struct { Expr _expr; bool value; } ExprBoolean;
 
 extern ExprBoolean exprTrue, exprFalse;
-extern ExprTag     exprBooleanTag;
-extern ExprTagImpl exprBooleanImpl;
 
+extern ExprTag exprBooleanTag;
 void initBooleanTag(Region *);
 
 #endif

@@ -16,7 +16,7 @@ static void moveBoolean(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
 }
 
-ExprTagImpl exprBooleanImpl = {
+static ExprTagImpl exprBooleanImpl = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showBoolean,

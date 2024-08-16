@@ -7,8 +7,8 @@ typedef long long int Integer;
 
 typedef struct { Expr _expr; Integer value; } ExprInteger;
 
-extern ExprTag     exprIntegerTag;
-extern ExprTagImpl exprIntegerImpl;
+extern ExprTag exprIntegerTag;
+void initIntegerTag(Region *);
 
 static inline void * newInteger(Region * region, Integer value) {
     ExprInteger * retval = newExpr(region, exprIntegerTag);
@@ -19,6 +19,5 @@ static inline void * newInteger(Region * region, Integer value) {
     return retval;
 }
 
-void initIntegerTag(Region *);
 
 #endif

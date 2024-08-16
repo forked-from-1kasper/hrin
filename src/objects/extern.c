@@ -25,7 +25,7 @@ static void moveExtern(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
 }
 
-ExprTagImpl exprExternImpl = {
+static ExprTagImpl exprExternImpl = {
     .eval   = evalNf,
     .apply  = applyExtern,
     .show   = showExtern,

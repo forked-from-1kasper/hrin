@@ -15,7 +15,7 @@ static void moveNil(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
 }
 
-ExprTagImpl exprNilImpl = {
+static ExprTagImpl exprNilImpl = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showNil,

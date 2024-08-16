@@ -5,9 +5,7 @@
 
 typedef struct { Expr _expr; char * value; } ExprString;
 
-extern ExprTag     exprStringTag;
-extern ExprTagImpl exprStringImpl;
-
+extern ExprTag exprStringTag;
 void initStringTag(Region *);
 
 #endif

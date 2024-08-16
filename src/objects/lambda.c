@@ -79,7 +79,7 @@ static void moveLambda(Region * dest, Region * src, void * value) {
     move(dest, expr->value);
 }
 
-ExprTagImpl exprLambdaImpl = {
+static ExprTagImpl exprLambdaImpl = {
     .eval   = evalNf,
     .apply  = applyLambda,
     .show   = showLambda,

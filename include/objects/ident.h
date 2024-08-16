@@ -5,8 +5,8 @@
 
 typedef struct { Expr _expr; char * value; } ExprIdent;
 
-extern ExprTag     exprIdentTag;
-extern ExprTagImpl exprIdentImpl;
+extern ExprTag exprIdentTag;
+void initIdentTag(Region *);
 
 static inline void * newIdent(Region * region, char * buf) {
     ExprIdent * retval = newExpr(region, exprIdentTag);
@@ -17,6 +17,5 @@ static inline void * newIdent(Region * region, char * buf) {
     return retval;
 }
 
-void initIdentTag(Region *);
 
 #endif

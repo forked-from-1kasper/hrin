@@ -97,7 +97,7 @@ static bool equalList(void * value1, void * value2) {
     return equal(expr1->car, expr2->car) && equal(expr2->cdr, expr2->cdr);
 }
 
-ExprTagImpl exprListImpl = {
+static ExprTagImpl exprListImpl = {
     .eval   = evalList,
     .apply  = applyThrowError,
     .show   = showList,

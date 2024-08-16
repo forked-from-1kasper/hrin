@@ -5,8 +5,8 @@
 
 typedef struct { Expr _expr; void * car, * cdr; } ExprList;
 
-extern ExprTag     exprListTag;
-extern ExprTagImpl exprListImpl;
+extern ExprTag exprListTag;
+void initListTag(Region *);
 
 static inline void * newList(Region * region, void * car, void * cdr) {
     ExprList * retval = newExpr(region, exprListTag);
@@ -19,7 +19,5 @@ static inline void * newList(Region * region, void * car, void * cdr) {
 }
 
 size_t lengthList(void *);
-
-void initListTag(Region *);
 
 #endif

@@ -6,8 +6,8 @@
 typedef void * Extern(Region *, Array *);
 typedef struct { Expr _expr; Extern * value; } ExprExtern;
 
-extern ExprTag     exprExternTag;
-extern ExprTagImpl exprExternImpl;
+extern ExprTag exprExternTag;
+void initExternTag(Region *);
 
 static inline void * newExtern(Region * region, Extern * value) {
     ExprExtern * retval = newExpr(region, exprExternTag);
@@ -17,7 +17,5 @@ static inline void * newExtern(Region * region, Extern * value) {
 
     return retval;
 }
-
-void initExternTag(Region *);
 
 #endif
