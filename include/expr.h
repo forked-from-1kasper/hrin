@@ -2,6 +2,7 @@
 #define EXPR_H
 
 #include <stdbool.h>
+#include <string.h>
 #include <stdint.h>
 
 #include <avl.h>
@@ -35,7 +36,7 @@ typedef struct {
     void * (* apply)(Region *, void *, Array *);
     void * (* eval)(Region *, void *);
     bool (* equal)(void *, void *);
-    char * (* show)(void *);
+    size_t (* show)(char *, size_t, void *);
     void (* delete)(void *);
     size_t size;
 } ExprTagImpl;
@@ -47,12 +48,14 @@ ExprTag newExprTag(ExprTagImpl);
 void * newExpr(Region *, ExprTag);
 void newExprImmortal(ExprTag, ...);
 
-void * apply(Region *, void *, Array *);
-void * eval(Region *, void *);
-bool equal(void *, void *);
 void move(Region *, Expr *);
 void delete(void *);
-char * show(void *);
+
+void * apply(Region *, void *, Array *);
+void * eval(Region *, void *);
+
+size_t show(char *, size_t, void *);
+bool equal(void *, void *);
 
 void deallocExprBuffers(void);
 
@@ -74,8 +77,13 @@ static inline Region * ownerof(void * value)
 static inline void copyScope(Scope * dest, Scope * src)
 { copyTrie(&dest->context, &src->context); }
 
+const char * showExpr(void *);
+
 void * evalNf(Region *, void *);
 bool equalByRef(void *, void *);
 void * applyThrowError(Region *, void *, Array *);
+
+static inline size_t ellipsis(char * buf)
+{ strcpy(buf, "..."); return 3; }
 
 #endif

@@ -9,9 +9,13 @@ static void * evalAtom(Region * region, void * value) {
     return o == NULL ? throw(NameErrorTag, "%s is undefined", expr->value) : o;
 }
 
-static char * showAtom(void * value) {
+static size_t showAtom(char * buf, size_t size, void * value) {
     ExprAtom * expr = value;
-    return dup(expr->value);
+
+    size_t length = strlen(expr->value);
+    if (size <= length) return ellipsis(buf);
+
+    strcpy(buf, expr->value); return length;
 }
 
 static void deleteAtom(void * value) {

@@ -80,9 +80,9 @@ void * eval(Region * region, void * value) {
     return exprTagImpl[expr->tag].eval(region, value);
 }
 
-char * show(void * value) {
+size_t show(char * buf, size_t size, void * value) {
     Expr * expr = value;
-    return exprTagImpl[expr->tag].show(value);
+    return exprTagImpl[expr->tag].show(buf, size, value);
 }
 
 void delete(void * value) {
@@ -149,6 +149,13 @@ void deleteRegion(Region * region) {
     free(region);
 }
 
+const char * showExpr(void * value) {
+    static char buf[512];
+
+    show(buf, sizeof(buf), value);
+    return buf;
+}
+
 void * evalNf(Region * region, void * value) {
     UNUSED(region);
 
@@ -162,9 +169,5 @@ bool equalByRef(void * value1, void * value2) {
 void * applyThrowError(Region * region, void * x, Array * xs) {
     UNUSED(region); UNUSED(xs);
 
-    char * bufobj = show(x);
-    throw(ApplyErrorTag, "%s is not callable", bufobj);
-    free(bufobj);
-
-    return NULL;
+    return throw(ApplyErrorTag, "%s is not callable", showExpr(x));
 }

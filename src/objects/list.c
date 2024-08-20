@@ -52,31 +52,34 @@ static void * evalList(Region * region, void * value) {
 
     Array * argbuf = expandList(expr->cdr);
 
-    if (argbuf == NULL) {
-        char * buf = show(expr->cdr);
-        throw(TypeErrorTag, "%s expected to be an argument list", buf);
-        free(buf);
-
-        return NULL;
-    }
+    if (argbuf == NULL) return throw(TypeErrorTag, "%s expected to be an argument list", showExpr(expr->cdr));
 
     void * retval = apply(region, headval, argbuf);
     freeArray(argbuf); free(argbuf); return retval;
 }
 
-static char * showList(void * value) {
+static size_t showList(char * buf, size_t size, void * value) {
+    if (size < sizeof("(XXX . YYY)")) return ellipsis(buf);
+
+    size_t rem = size;
+
+    *(buf++) = '('; rem--;
+
     ExprList * expr = value;
 
-    char * car = show(expr->car);
-    char * cdr = show(expr->cdr);
+    size_t carlen = show(buf, rem - sizeof(". YYY)"), expr->car);
+    buf += carlen; rem -= carlen;
 
-    size_t length = strlen(car) + strlen(cdr) + 5;
-    char * retbuf = malloc(length + 1);
-    if (retbuf == NULL) return NULL;
+    *(buf++) = ' '; rem--;
+    *(buf++) = '.'; rem--;
+    *(buf++) = ' '; rem--;
 
-    sprintf(retbuf, "(%s . %s)", car, cdr);
+    size_t cdrlen = show(buf, rem - 1, expr->cdr);
+    buf += cdrlen; rem -= cdrlen;
 
-    free(car); free(cdr); return retbuf;
+    *(buf++) = ')'; rem--;
+
+    *buf = '\0'; return size - rem;
 }
 
 static void deleteList(void * value) {
@@ -126,13 +129,7 @@ static inline void * evalEnsureList(Region * region, void * value) {
     void * o = eval(region, value);
     if (o == NULL) return NULL;
 
-    if (tagof(o) != exprListTag) {
-        char * buf = show(o);
-        throw(TypeErrorTag, "%s expected to be a list", buf);
-        free(buf);
-
-        return NULL;
-    }
+    if (tagof(o) != exprListTag) return throw(TypeErrorTag, "%s expected to be a list", showExpr(o));
 
     return o;
 }

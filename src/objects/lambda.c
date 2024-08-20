@@ -32,12 +32,11 @@ static void * applyLambda(Region * region, void * value, Array * xs) {
     finally: deleteScope(internal->scope); deleteRegion(internal); return retval;
 }
 
-static char * showLambda(void * value) {
+static size_t showLambda(char * buf, size_t size, void * value) {
     //ExprLambda * expr = value;
 
-    char * retbuf = malloc(27); sprintf(retbuf, "<#LAMBDA %016lx>", (uintptr_t) value);
-
-    return retbuf;
+    if (size <= 26) return ellipsis(buf);
+    return snprintf(buf, size, "<#LAMBDA %016lx>", (uintptr_t) value);
 }
 
 static void deleteLambda(void * value) {
@@ -114,13 +113,8 @@ void * externLambda(Region * region, Array * xs) {
     if (xs->size <= 0) return throw(TypeErrorTag, "no arguments were given");
 
     for (size_t i = 0; i < xs->size - 1; i++) {
-        if (tagof(getArray(xs, i)) != exprAtomTag) {
-            char * buf = show(getArray(xs, i));
-            throw(TypeErrorTag, "%s expected to be an atom", buf);
-            free(buf);
-
-            return NULL;
-        }
+        if (tagof(getArray(xs, i)) != exprAtomTag)
+            return throw(TypeErrorTag, "%s expected to be an atom", showExpr(getArray(xs, i)));
     }
 
     Array vars = newArray(xs->size - 1);

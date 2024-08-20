@@ -19,5 +19,4 @@ static inline void * newInteger(Region * region, Integer value) {
     return retval;
 }
 
-
 #endif

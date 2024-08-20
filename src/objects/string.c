@@ -4,13 +4,13 @@
 
 #include <objects/string.h>
 
-static char * showString(void * value) {
+static size_t showString(char * buf, size_t size, void * value) {
     ExprString * expr = value;
 
-    char * retbuf = malloc(strlen(expr->value) + 3);
-    sprintf(retbuf, "\"%s\"", expr->value);
+    size_t length = strlen(expr->value);
 
-    return retbuf;
+    if (size <= length + 2) return ellipsis(buf);
+    else return snprintf(buf, size, "\"%s\"", expr->value);
 }
 
 static void deleteString(void * value) {

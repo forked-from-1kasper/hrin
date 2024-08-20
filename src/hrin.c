@@ -23,13 +23,7 @@ void * externDefine(Region * region, Array * xs) {
     if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
     ExprAtom * i = getArray(xs, 0);
 
-    if (tagof(i) != exprAtomTag) {
-        char * ibuf = show(i);
-        throw(TypeErrorTag, "%s expected to be an atom", ibuf);
-        free(ibuf);
-
-        return NULL;
-    }
+    if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
 
     Expr * o = eval(region, getArray(xs, 1));
     if (o == NULL) return NULL;
@@ -44,13 +38,7 @@ void * externDeflocal(Region * region, Array * xs) {
     if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
     ExprAtom * i = getArray(xs, 0);
 
-    if (tagof(i) != exprAtomTag) {
-        char * ibuf = show(i);
-        throw(TypeErrorTag, "%s expected to be an atom", ibuf);
-        free(ibuf);
-
-        return NULL;
-    }
+    if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
 
     Expr * o = eval(region, getArray(xs, 1));
     if (o == NULL) return NULL;
@@ -125,20 +113,16 @@ ErrorTag scanLine(FILE * file) {
     Expr * e1 = takeExprToplevel(region, file);
     if (e1 == NULL) { retval = printError(); goto finally; }
 
-    {
-        char * buf = show(e1);
-        printf(">>> %s\n", buf);
-        free(buf);
-    }
+    char buf[1024];
+
+    show(buf, sizeof(buf), e1);
+    printf(">>> %s\n", buf);
 
     Expr * e2 = eval(region, e1);
     if (e2 == NULL) { retval = printError(); goto finally; }
 
-    {
-        char * buf = show(e2);
-        printf("<<< %s\n", buf);
-        free(buf);
-    }
+    show(buf, sizeof(buf), e2);
+    printf("<<< %s\n", buf);
 
     finally:
     deleteScope(region->scope);

@@ -70,11 +70,13 @@ void * takeExpr(Region * region, FILE * stream) {
                 free(outbuf);
             } else headval = newAtom(region, outbuf);
 
+            if (headval == NULL) return NULL;
+
             int nextToken = popToken(stream);
 
             if (nextToken == TokenLbracket)
                 return takeExprSepBy1(region, stream, headval, TokenSemicolon, TokenRbracket);
-             else {
+            else {
                 pushToken(nextToken);
                 return headval;
             }

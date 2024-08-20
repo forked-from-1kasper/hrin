@@ -3,9 +3,16 @@
 #include <objects/boolean.h>
 #include <objects/extern.h>
 
-static char * showBoolean(void * value) {
+static size_t showBoolean(char * buf, size_t size, void * value) {
     ExprBoolean * expr = value;
-    return dup(expr->value ? "true" : "false");
+
+    if (expr->value) {
+        if (size <= 4) return ellipsis(buf);
+        strcpy(buf, "true"); return 4;
+    } else {
+        if (size <= 5) return ellipsis(buf);
+        strcpy(buf, "false"); return 5;
+    }
 }
 
 static void deleteBoolean(void * value) {
@@ -38,11 +45,7 @@ void * externNot(Region * region, Array * xs) {
     if (o == &exprFalse) return &exprTrue;
     if (o == &exprTrue)  return &exprFalse;
 
-    char * buf = show(o);
-    throw(TypeErrorTag, "%s expected to be a boolean", buf);
-    free(buf);
-
-    return NULL;
+    return throw(TypeErrorTag, "%s expected to be a boolean", showExpr(o));
 }
 
 void * externAndalso(Region * region, Array * xs) {
@@ -73,11 +76,7 @@ void * externIte(Region * region, Array * xs) {
     if (b == &exprTrue)  return eval(region, getArray(xs, 1));
     if (b == &exprFalse) return eval(region, getArray(xs, 2));
 
-    char * buf = show(b);
-    throw(TypeErrorTag, "%s expected to be a boolean", buf);
-    free(buf);
-
-    return NULL;
+    return throw(TypeErrorTag, "%s expected to be a boolean", showExpr(b));
 }
 
 void * externEqual(Region * region, Array * xs) {

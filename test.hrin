@@ -14,11 +14,7 @@ define[var2; var1];
 
 define[fact; λ[n; ite[equal?[n; 0]; 1; muli[n; fact[dec[n]]]]]];
 
-define[x; cons[nil; nil]];
+define[cycle₁; cons[quote[A]; nil]];
+define[cycle₂; cons[quote[B]; cycle₁]];
 
-deflocal[X; 14];
-deflocal[Y; 88];
-
-setcar![x; X];
-setcdr![x; Y];
-
+setcdr![cycle₁; cycle₂];

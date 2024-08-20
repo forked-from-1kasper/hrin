@@ -2,9 +2,9 @@
 
 #include <objects/nil.h>
 
-static char * showNil(void * value) {
-    UNUSED(value);
-    return dup("nil");
+static size_t showNil(char * buf, size_t size, void * value) {
+    UNUSED(value); UNUSED(size);
+    strcpy(buf, "nil"); return 3;
 }
 
 static void deleteNil(void * value) {

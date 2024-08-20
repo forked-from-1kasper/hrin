@@ -5,13 +5,13 @@
 #include <objects/integer.h>
 #include <objects/extern.h>
 
-static char * showInteger(void * value) {
+static size_t showInteger(char * buf, size_t size, void * value) {
     ExprInteger * expr = value;
 
-    char * retbuf = malloc(21);
-    sprintf(retbuf, "%lld", expr->value);
+    size_t length = snprintf(NULL, 0, "%lld", expr->value);
+    if (size <= length) return ellipsis(buf);
 
-    return retbuf;
+    return snprintf(buf, size, "%lld", expr->value);
 }
 
 static void deleteInteger(void * value) {
@@ -39,22 +39,23 @@ static ExprTagImpl exprIntegerImpl = {
 
 ExprTag exprIntegerTag;
 
+static inline void * evalEnsureInteger(Region * region, void * value) {
+    void * o = eval(region, value);
+    if (o == NULL) return NULL;
+
+    if (tagof(o) != exprIntegerTag) return throw(TypeErrorTag, "%s expected to be an integer", showExpr(o));
+
+    return o;
+}
+
 void * externAddi(Region * region, Array * xs) {
     Integer intval = 0;
 
     for (size_t i = 0; i < xs->size; i++) {
-        Expr * argval = eval(region, getArray(xs, i));
+        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i));
         if (argval == NULL) return NULL;
 
-        if (tagof(argval) == exprIntegerTag)
-            intval += ((ExprInteger *) argval)->value;
-        else {
-            char * argvalbuf = show(argval);
-            throw(TypeErrorTag, "%s expected to be an integer", argvalbuf);
-            free(argvalbuf);
-
-            return NULL;
-        }
+        intval += argval->value;
     }
 
     return newInteger(region, intval);
@@ -64,18 +65,10 @@ void * externMuli(Region * region, Array * xs) {
     Integer intval = 1;
 
     for (size_t i = 0; i < xs->size; i++) {
-        Expr * argval = eval(region, getArray(xs, i));
+        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i));
         if (argval == NULL) return NULL;
 
-        if (tagof(argval) == exprIntegerTag)
-            intval *= ((ExprInteger *) argval)->value;
-        else {
-            char * argvalbuf = show(argval);
-            throw(TypeErrorTag, "%s expected to be an integer", argvalbuf);
-            free(argvalbuf);
-
-            return NULL;
-        }
+        intval *= argval->value;
     }
 
     return newInteger(region, intval);
@@ -84,16 +77,10 @@ void * externMuli(Region * region, Array * xs) {
 void * externNegi(Region * region, Array * xs) {
     if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
 
-    void * o = eval(region, getArray(xs, 0));
-    if (tagof(o) == exprIntegerTag) {
-        return newInteger(region, -((ExprInteger *) o)->value);
-    } else {
-        char * buf = show(o);
-        throw(TypeErrorTag, "%s expected to be an integer", buf);
-        free(buf);
+    ExprInteger * argval = evalEnsureInteger(region, getArray(xs, 0));
+    if (argval == NULL) return NULL;
 
-        return NULL;
-    }
+    return newInteger(region, -argval->value);
 }
 
 void initIntegerTag(Region * region) {
