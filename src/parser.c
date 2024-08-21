@@ -9,8 +9,8 @@
 #include <objects/integer.h>
 #include <objects/string.h>
 #include <objects/atom.h>
-#include <objects/list.h>
 #include <objects/nil.h>
+#include <objects/cc.h>
 
 static inline bool tokenLookahead(FILE * stream, int expected) {
     int token = popToken(stream);
@@ -20,15 +20,14 @@ static inline bool tokenLookahead(FILE * stream, int expected) {
 }
 
 void * takeExprSepBy1(Region * region, FILE * stream, void * headval, int toksep, int tokuntil) {
-    ExprList * retval = newExpr(region, exprListTag);
-    retval->car = headval; retval->cdr = NULL;
+    ExprCC * retval = newCC(region, headval, &exprNil);
 
     if (tokenLookahead(stream, tokuntil)) {
         retval->cdr = &exprNil;
         return retval;
     }
 
-    ExprList * curr = retval;
+    ExprCC * curr = retval;
 
     for (;;) {
         Expr * argval = takeExpr(region, stream);
@@ -37,17 +36,11 @@ void * takeExprSepBy1(Region * region, FILE * stream, void * headval, int toksep
         int separator = popToken(stream);
 
         if (separator == toksep) {
-            ExprList * nextcurr = newExpr(region, exprListTag);
-            nextcurr->car = argval;
-            curr->cdr = nextcurr;
-            curr = nextcurr;
+            ExprCC * next = newCC(region, argval, &exprNil);
+            curr->cdr = next;
+            curr = next;
         } else if (separator == tokuntil) {
-            ExprList * nextcurr = newExpr(region, exprListTag);
-
-            curr->cdr = nextcurr;
-            nextcurr->car = argval;
-            nextcurr->cdr = &exprNil;
-
+            curr->cdr = newCC(region, argval, &exprNil);
             return retval;
         } else return throw(SyntaxErrorTag, "expected semicolon or right bracket");
     }

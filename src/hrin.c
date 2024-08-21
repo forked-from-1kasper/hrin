@@ -11,8 +11,8 @@
 #include <objects/string.h>
 #include <objects/lambda.h>
 #include <objects/atom.h>
-#include <objects/list.h>
 #include <objects/nil.h>
+#include <objects/cc.h>
 
 #include <lexer.h>
 #include <parser.h>
@@ -141,7 +141,7 @@ int main(int argc, char * argv[]) {
     initExternTag(rootRegion); // Everything below can rely on `newExtern`.
 
     initNilTag(rootRegion);
-    initListTag(rootRegion);
+    initCCTag(rootRegion);
     initBooleanTag(rootRegion);
     initAtomTag(rootRegion);
     initIntegerTag(rootRegion);

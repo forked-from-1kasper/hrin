@@ -2,7 +2,7 @@ CC     = cc
 CFLAGS = -g -Iinclude/ -std=c99 -Wall -Wextra -pedantic
 BINARY = hrin
 CFILES = src/io.c src/lexer.c src/parser.c src/avl.c src/trie.c src/array.c\
-         src/objects/nil.c src/objects/atom.c src/objects/list.c src/objects/integer.c\
+         src/objects/nil.c src/objects/atom.c src/objects/cc.c src/objects/integer.c\
          src/objects/string.c src/objects/lambda.c src/objects/extern.c src/objects/boolean.c\
          src/expr.c src/error.c src/hrin.c
 OFILES = $(CFILES:.c=.o)
