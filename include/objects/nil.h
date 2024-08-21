@@ -3,7 +3,7 @@
 
 #include <expr.h>
 
-typedef struct { Expr _expr; } ExprNil;
+typedef Expr ExprNil;
 
 extern ExprNil exprNil;
 

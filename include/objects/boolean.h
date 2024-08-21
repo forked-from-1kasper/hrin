@@ -3,7 +3,7 @@
 
 #include <expr.h>
 
-typedef struct { Expr _expr; bool value; } ExprBoolean;
+typedef Expr ExprBoolean;
 
 extern ExprBoolean exprTrue, exprFalse;
 

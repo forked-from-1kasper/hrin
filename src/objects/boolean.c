@@ -4,15 +4,17 @@
 #include <objects/extern.h>
 
 static size_t showBoolean(char * buf, size_t size, void * value) {
-    ExprBoolean * expr = value;
-
-    if (expr->value) {
+    if (value == &exprTrue) {
         if (size <= 4) return ellipsis(buf);
         strcpy(buf, "true"); return 4;
-    } else {
+    }
+
+    if (value == &exprFalse) {
         if (size <= 5) return ellipsis(buf);
         strcpy(buf, "false"); return 5;
     }
+
+    return 0;
 }
 
 static void deleteBoolean(void * value) {
@@ -34,7 +36,7 @@ static ExprTagImpl exprBooleanImpl = {
 };
 
 ExprTag exprBooleanTag;
-ExprBoolean exprTrue = {.value = true}, exprFalse = {.value = false};
+ExprBoolean exprTrue, exprFalse;
 
 void * externNot(Region * region, Array * xs) {
     if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
