@@ -39,7 +39,7 @@ ExprTag exprBooleanTag;
 ExprBoolean exprTrue, exprFalse;
 
 void * externNot(Region * region, Array * xs) {
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+    ARITY(1, xs->size);
 
     void * o = eval(region, getArray(xs, 0));
     if (o == NULL) return NULL;
@@ -71,7 +71,7 @@ void * externOrelse(Region * region, Array * xs) {
 }
 
 void * externIte(Region * region, Array * xs) {
-    if (xs->size != 3) return throw(TypeErrorTag, "expected 3 arguments but %zu were given", xs->size);
+    ARITY(3, xs->size);
 
     void * b = eval(region, getArray(xs, 0));
 
@@ -82,7 +82,7 @@ void * externIte(Region * region, Array * xs) {
 }
 
 void * externEqual(Region * region, Array * xs) {
-    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+    ARITY(2, xs->size);
 
     void * o1 = eval(region, getArray(xs, 0));
     if (o1 == NULL) return NULL;

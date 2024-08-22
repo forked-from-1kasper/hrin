@@ -11,8 +11,7 @@
 static void * applyMacro(Region * region, void * value, Array * xs) {
     ExprLexical * expr = value;
 
-    if (xs->size != expr->vars.size)
-        return throw(TypeErrorTag, "expected %zu argument(s) but %zu were given", expr->vars.size, xs->size);
+    ARITY(expr->vars.size, xs->size);
 
     Region * nested = newRegion(region);
     nested->scope = newScope(expr->scope);
@@ -36,8 +35,7 @@ static void * applyMacro(Region * region, void * value, Array * xs) {
 static void * applyLambda(Region * region, void * value, Array * xs) {
     ExprLexical * expr = value;
 
-    if (xs->size != expr->vars.size)
-        return throw(TypeErrorTag, "expected %zu argument(s) but %zu were given", expr->vars.size, xs->size);
+    ARITY(expr->vars.size, xs->size);
 
     Region * nested = newRegion(region);
     nested->scope = newScope(expr->scope);
@@ -180,7 +178,7 @@ void * externMacro(Region * region, Array * xs) {
 }
 
 void * externExpand(Region * region, Array * xs) {
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+    ARITY(1, xs->size);
 
     ExprLexical * o = eval(region, getArray(xs, 0));
     if (o == NULL) return NULL;

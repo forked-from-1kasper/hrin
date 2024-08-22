@@ -75,7 +75,7 @@ void * externMuli(Region * region, Array * xs) {
 }
 
 void * externNegi(Region * region, Array * xs) {
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+    ARITY(1, xs->size);
 
     ExprInteger * argval = evalEnsureInteger(region, getArray(xs, 0));
     if (argval == NULL) return NULL;

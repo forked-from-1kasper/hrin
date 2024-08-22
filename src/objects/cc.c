@@ -135,7 +135,7 @@ static inline void * evalEnsureCC(Region * region, void * value) {
 }
 
 void * externCar(Region * region, Array * xs) {
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+    ARITY(1, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
     if (consval == NULL) return NULL;
@@ -144,7 +144,7 @@ void * externCar(Region * region, Array * xs) {
 }
 
 void * externCdr(Region * region, Array * xs) {
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+    ARITY(1, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
     if (consval == NULL) return NULL;
@@ -153,7 +153,7 @@ void * externCdr(Region * region, Array * xs) {
 }
 
 void * externCons(Region * region, Array * xs) {
-    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+    ARITY(2, xs->size);
 
     void * car = eval(region, getArray(xs, 0));
     if (car == NULL) return NULL;
@@ -165,7 +165,7 @@ void * externCons(Region * region, Array * xs) {
 }
 
 void * externSetcar(Region * region, Array * xs) {
-    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+    ARITY(2, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
     if (consval == NULL) return NULL;
@@ -179,7 +179,7 @@ void * externSetcar(Region * region, Array * xs) {
 }
 
 void * externSetcdr(Region * region, Array * xs) {
-    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
+    ARITY(2, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
     if (consval == NULL) return NULL;

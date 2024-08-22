@@ -10,4 +10,6 @@ ErrorTag getThrownError();
 
 extern ErrorTag EOFErrorTag, SyntaxErrorTag, ApplyErrorTag, UnknownErrorTag, NameErrorTag, OOMErrorTag, TypeErrorTag;
 
+#define ARITY(expected, given) if ((expected) != (given)) return throw(TypeErrorTag, "expected %zu argument(s) but %zu were given", (expected), (given));
+
 #endif

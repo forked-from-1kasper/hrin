@@ -20,9 +20,9 @@
 Region * rootRegion = NULL;
 
 void * externDefine(Region * region, Array * xs) {
-    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
-    ExprAtom * i = getArray(xs, 0);
+    ARITY(2, xs->size);
 
+    ExprAtom * i = getArray(xs, 0);
     if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
 
     Expr * o = eval(region, getArray(xs, 1));
@@ -35,9 +35,9 @@ void * externDefine(Region * region, Array * xs) {
 }
 
 void * externDeflocal(Region * region, Array * xs) {
-    if (xs->size != 2) return throw(TypeErrorTag, "expected 2 arguments but %zu were given", xs->size);
-    ExprAtom * i = getArray(xs, 0);
+    ARITY(2, xs->size);
 
+    ExprAtom * i = getArray(xs, 0);
     if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
 
     Expr * o = eval(region, getArray(xs, 1));
@@ -62,12 +62,12 @@ void * externProgn(Region * region, Array * xs) {
 void * externQuote(Region * region, Array * xs) {
     UNUSED(region);
 
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+    ARITY(1, xs->size);
     return getArray(xs, 0);
 }
 
 void * externEval(Region * region, Array * xs) {
-    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+    ARITY(1, xs->size);
 
     Expr * o = eval(region, getArray(xs, 0));
     if (o == NULL) return NULL;
