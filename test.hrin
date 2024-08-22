@@ -1,13 +1,15 @@
 define[inc; λ[x; addi[x; +1]]];
 define[dec; λ[x; addi[x; -1]]];
 
+define[xgetter; Λ[quote[x]]];
+
 progn[
-  deflocal[locvar; 111];
+  deflocal[locvar; 11];
   define[getvar; λ[locvar]]
 ];
 
-inc[9];
-getvar[];
+print![inc[9]; " & "; getvar[]; " & "; progn[deflocal[x; 42]; xgetter[]]; "
+"];
 
 deflocal[var1; 55];
 define[var2; var1];

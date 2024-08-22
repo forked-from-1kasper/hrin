@@ -8,14 +8,39 @@
 #include <objects/extern.h>
 #include <objects/atom.h>
 
-static void * applyLambda(Region * region, void * value, Array * xs) {
-    ExprLambda * expr = value;
+static void * applyMacro(Region * region, void * value, Array * xs) {
+    ExprLexical * expr = value;
 
     if (xs->size != expr->vars.size)
         return throw(TypeErrorTag, "expected %zu argument(s) but %zu were given", expr->vars.size, xs->size);
 
-    Region * internal = newRegion(region);
-    internal->scope = newScope(expr->scope);
+    Region * nested = newRegion(region);
+    nested->scope = newScope(expr->scope);
+
+    void * retval = NULL;
+
+    for (size_t i = 0; i < xs->size; i++)
+        setVar(nested->scope, getArray(&expr->vars, i), getArray(xs, i));
+
+    void * o = eval(nested, expr->value);
+    if (o == NULL) goto finally;
+
+    retval = eval(region, o);
+    if (retval != NULL) move(region, retval);
+
+    finally: deleteScope(nested->scope); deleteRegion(nested);
+
+    return retval;
+}
+
+static void * applyLambda(Region * region, void * value, Array * xs) {
+    ExprLexical * expr = value;
+
+    if (xs->size != expr->vars.size)
+        return throw(TypeErrorTag, "expected %zu argument(s) but %zu were given", expr->vars.size, xs->size);
+
+    Region * nested = newRegion(region);
+    nested->scope = newScope(expr->scope);
 
     void * retval = NULL;
 
@@ -23,24 +48,33 @@ static void * applyLambda(Region * region, void * value, Array * xs) {
         void * o = eval(region, getArray(xs, i));
         if (o == NULL) goto finally;
 
-        setVar(internal->scope, getArray(&expr->vars, i), o);
+        setVar(nested->scope, getArray(&expr->vars, i), o);
     }
 
-    retval = eval(internal, expr->value);
+    retval = eval(nested, expr->value);
     if (retval != NULL) move(region, retval);
 
-    finally: deleteScope(internal->scope); deleteRegion(internal); return retval;
+    finally: deleteScope(nested->scope); deleteRegion(nested);
+
+    return retval;
 }
 
 static size_t showLambda(char * buf, size_t size, void * value) {
-    //ExprLambda * expr = value;
+    //ExprLexical * expr = value;
 
     if (size <= 26) return ellipsis(buf);
     return snprintf(buf, size, "<#LAMBDA %016lx>", (uintptr_t) value);
 }
 
-static void deleteLambda(void * value) {
-    ExprLambda * expr = value;
+static size_t showMacro(char * buf, size_t size, void * value) {
+    //ExprLexical * expr = value;
+
+    if (size <= 25) return ellipsis(buf);
+    return snprintf(buf, size, "<#MACRO %016lx>", (uintptr_t) value);
+}
+
+static void deleteLexical(void * value) {
+    ExprLexical * expr = value;
 
     if (expr->scope != NULL)
         deleteScope(expr->scope);
@@ -69,10 +103,10 @@ static void moveTree(Region * region, void * n, int nbit) {
 static inline void moveTrie(Region * region, Trie * T)
 { moveTree(region, &T->root, 0); }
 
-static void moveLambda(Region * dest, Region * src, void * value) {
+static void moveLexical(Region * dest, Region * src, void * value) {
     UNUSED(src);
 
-    ExprLambda * expr = value;
+    ExprLexical * expr = value;
 
     moveTrie(dest, &expr->scope->context);
     move(dest, expr->value);
@@ -82,18 +116,28 @@ static ExprTagImpl exprLambdaImpl = {
     .eval   = evalNf,
     .apply  = applyLambda,
     .show   = showLambda,
-    .delete = deleteLambda,
-    .move   = moveLambda,
+    .delete = deleteLexical,
+    .move   = moveLexical,
     .equal  = equalByRef,
-    .size   = sizeof(ExprLambda)
+    .size   = sizeof(ExprLexical)
 };
 
-ExprTag exprLambdaTag;
+static ExprTagImpl exprMacroImpl = {
+    .eval   = evalNf,
+    .apply  = applyMacro,
+    .show   = showMacro,
+    .delete = deleteLexical,
+    .move   = moveLexical,
+    .equal  = equalByRef,
+    .size   = sizeof(ExprLexical)
+};
+
+ExprTag exprLambdaTag, exprMacroTag;
 
 Scope * global = NULL; // TODO
 
-void * newLambda(Region * region, Array vars, void * value) {
-    ExprLambda * retval = newExpr(region, exprLambdaTag);
+void * newLexical(ExprTag tag, Region * region, Array vars, void * value) {
+    ExprLexical * retval = newExpr(region, tag);
     retval->scope = newScope(global); // TODO
     retval->vars  = vars;
     retval->value = value;
@@ -109,7 +153,7 @@ void * newLambda(Region * region, Array vars, void * value) {
     return retval;
 }
 
-void * externLambda(Region * region, Array * xs) {
+void * externLexical(ExprTag tag, Region * region, Array * xs) {
     if (xs->size <= 0) return throw(TypeErrorTag, "no arguments were given");
 
     for (size_t i = 0; i < xs->size - 1; i++) {
@@ -124,12 +168,36 @@ void * externLambda(Region * region, Array * xs) {
         setArray(&vars, j, dup(i->value));
     }
 
-    return newLambda(region, vars, getArray(xs, xs->size - 1));
+    return newLexical(tag, region, vars, getArray(xs, xs->size - 1));
 }
 
-void initLambdaTag(Region * region) {
+void * externLambda(Region * region, Array * xs) {
+    return externLexical(exprLambdaTag, region, xs);
+}
+
+void * externMacro(Region * region, Array * xs) {
+    return externLexical(exprMacroTag, region, xs);
+}
+
+void * externExpand(Region * region, Array * xs) {
+    if (xs->size != 1) return throw(TypeErrorTag, "expected 1 argument but %zu were given", xs->size);
+
+    ExprLexical * o = eval(region, getArray(xs, 0));
+    if (o == NULL) return NULL;
+
+    if (tagof(o) != exprLambdaTag && tagof(o) != exprMacroTag)
+        return throw(TypeErrorTag, "%s expected to be a closure", showExpr(o));
+
+    return o->value;
+}
+
+void initLexicalTags(Region * region) {
     global = region->scope;
 
     exprLambdaTag = newExprTag(exprLambdaImpl);
-    setVar(region->scope, "λ", newExtern(region, externLambda));
+    exprMacroTag = newExprTag(exprMacroImpl);
+
+    setVar(region->scope, "λ",      newExtern(region, externLambda));
+    setVar(region->scope, "Λ",      newExtern(region, externMacro));
+    setVar(region->scope, "expand", newExtern(region, externExpand));
 }

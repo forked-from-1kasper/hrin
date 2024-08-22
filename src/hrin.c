@@ -75,6 +75,17 @@ void * externEval(Region * region, Array * xs) {
     return eval(region, o);
 }
 
+void * externPrint(Region * region, Array * xs) {
+    for (size_t i = 0; i < xs->size; i++) {
+        void * o = eval(region, getArray(xs, i));
+        if (o == NULL) return NULL;
+
+        printf("%s", tagof(o) == exprStringTag ? ((ExprString *) o)->value : showExpr(o));
+    }
+
+    return &exprNil;
+}
+
 ErrorTag printError() {
     ErrorTag error = getThrownError();
     if (error == NULL) return NULL;
@@ -146,13 +157,14 @@ int main(int argc, char * argv[]) {
     initAtomTag(rootRegion);
     initIntegerTag(rootRegion);
     initStringTag(rootRegion);
-    initLambdaTag(rootRegion);
+    initLexicalTags(rootRegion);
 
     setVar(rootRegion->scope, "define",   newExtern(rootRegion, externDefine));
     setVar(rootRegion->scope, "progn",    newExtern(rootRegion, externProgn));
     setVar(rootRegion->scope, "deflocal", newExtern(rootRegion, externDeflocal));
     setVar(rootRegion->scope, "quote",    newExtern(rootRegion, externQuote));
     setVar(rootRegion->scope, "eval",     newExtern(rootRegion, externEval));
+    setVar(rootRegion->scope, "print!",   newExtern(rootRegion, externPrint));
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");

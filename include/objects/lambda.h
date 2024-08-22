@@ -3,9 +3,9 @@
 
 #include <expr.h>
 
-typedef struct { Expr _expr; Scope * scope; Array vars; void * value; } ExprLambda;
+typedef struct { Expr _expr; Scope * scope; Array vars; void * value; } ExprLexical;
 
-extern ExprTag exprLambdaTag;
-void initLambdaTag(Region *);
+extern ExprTag exprLambdaTag, exprMacroTag;
+void initLexicalTags(Region *);
 
 #endif
