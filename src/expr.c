@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <stdio.h>
 
 #include <common.h>
 #include <expr.h>
@@ -76,8 +77,10 @@ void * apply(Region * region, void * f, Array * xs) {
 }
 
 void * eval(Region * region, void * value) {
-    Expr * expr = value;
-    return exprTagImpl[expr->tag].eval(region, value);
+    Expr * o = exprTagImpl[tagof(value)].eval(region, value);
+    if (o == NULL) printf("↳ %s\n", showExpr(value));
+
+    return o;
 }
 
 size_t show(char * buf, size_t size, void * value) {
