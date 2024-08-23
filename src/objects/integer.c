@@ -18,8 +18,10 @@ static void deleteInteger(void * value) {
     UNUSED(value);
 }
 
-static void moveInteger(Region * dest, Region * src, void * value) {
+static void * moveInteger(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
+
+    return value;
 }
 
 static bool equalInteger(void * value1, void * value2) {

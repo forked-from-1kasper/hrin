@@ -21,8 +21,10 @@ static void deleteBoolean(void * value) {
     UNUSED(value);
 }
 
-static void moveBoolean(Region * dest, Region * src, void * value) {
+static void * moveBoolean(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
+
+    return value;
 }
 
 static ExprTagImpl exprBooleanImpl = {

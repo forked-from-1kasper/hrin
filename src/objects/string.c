@@ -18,8 +18,10 @@ static void deleteString(void * value) {
     free(expr->value);
 }
 
-static void moveString(Region * dest, Region * src, void * value) {
+static void * moveString(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
+
+    return value;
 }
 
 static bool equalString(void * value1, void * value2) {

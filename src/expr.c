@@ -4,6 +4,51 @@
 #include <common.h>
 #include <expr.h>
 
+void * evalNf(Region * region, void * value) {
+    UNUSED(region);
+
+    return value;
+}
+
+bool equalByRef(void * value1, void * value2) {
+    return value1 == value2;
+}
+
+void * applyThrowError(Region * region, void * x, Array * xs) {
+    UNUSED(region); UNUSED(xs);
+
+    return throw(ApplyErrorTag, "%s is not callable", showExpr(x));
+}
+
+static size_t showErrval(char * buf, size_t size, void * value) {
+    UNUSED(value);
+
+    if (size <= 7) return ellipsis(buf);
+    strcpy(buf, "#ERRVAL"); return 7;
+}
+
+static void deleteErrval(void * value) {
+    UNUSED(value);
+}
+
+static void * moveErrval(Region * dest, Region * src, void * value) {
+    UNUSED(dest); UNUSED(src); UNUSED(value);
+
+    return value;
+}
+
+static ExprTagImpl exprErrvalImpl = {
+    .eval   = evalNf,
+    .apply  = applyThrowError,
+    .show   = showErrval,
+    .delete = deleteErrval,
+    .move   = moveErrval,
+    .equal  = equalByRef,
+    .size   = 0
+};
+
+ExprTag exprErrvalTag;
+
 void setVar(Scope * scope, const char * x, void * o) {
     setTrie(&scope->context, x, o);
 }
@@ -33,7 +78,11 @@ ExprTag newExprTag(ExprTagImpl impl) {
     return newTag;
 }
 
-void deallocExprBuffers() {
+void initExpr() {
+    exprErrvalTag = newExprTag(exprErrvalImpl);
+}
+
+void deinitExpr() {
     if (exprTagImpl != NULL)
         free(exprTagImpl);
 }
@@ -48,6 +97,7 @@ void * newExpr(Region * region, ExprTag tag) {
     if (o == NULL) return NULL;
 
     o->tag = tag;
+    o->mask = 0;
 
     takeOwnership(region, o);
 
@@ -95,19 +145,39 @@ void delete(void * value) {
     free(value);
 }
 
+void invalidate(void * value) {
+    Expr * expr = value;
+
+    exprTagImpl[expr->tag].delete(value);
+    expr->tag = exprErrvalTag;
+}
+
 bool equal(void * value1, void * value2) {
     if (tagof(value1) != tagof(value2)) return false;
     return exprTagImpl[tagof(value1)].equal(value1, value2);
 }
 
-void move(Region * dest, Expr * o) {
+void * move(Region * dest, Expr * o) {
     Region * src = o->owner;
 
-    if (src == NULL || src->index <= dest->index) return;
-    deleteAVLTree(&src->pool, o);
+    if (src == NULL || src->index <= dest->index)
+        return o;
 
+    deleteAVLTree(&src->pool, o);
     takeOwnership(dest, o);
-    exprTagImpl[o->tag].move(dest, src, o);
+
+    void * retptr = o;
+
+    if (exprTagImpl[o->tag].move(dest, src, o) == NULL)
+        retptr = NULL;
+
+    if (o->mask & MASK_BORROWED) {
+        throw(RegionErrorTag, "attempt to move a borrowed value: %s", showExpr(o));
+        invalidate(o);
+        retptr = NULL;
+    }
+
+    return retptr;
 }
 
 Scope * newScope(Scope * next) {
@@ -157,20 +227,4 @@ const char * showExpr(void * value) {
 
     show(buf, sizeof(buf), value);
     return buf;
-}
-
-void * evalNf(Region * region, void * value) {
-    UNUSED(region);
-
-    return value;
-}
-
-bool equalByRef(void * value1, void * value2) {
-    return value1 == value2;
-}
-
-void * applyThrowError(Region * region, void * x, Array * xs) {
-    UNUSED(region); UNUSED(xs);
-
-    return throw(ApplyErrorTag, "%s is not callable", showExpr(x));
 }

@@ -11,8 +11,10 @@ static void deleteNil(void * value) {
     UNUSED(value);
 }
 
-static void moveNil(Region * dest, Region * src, void * value) {
+static void * moveNil(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
+
+    return value;
 }
 
 static ExprTagImpl exprNilImpl = {

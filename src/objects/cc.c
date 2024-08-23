@@ -48,11 +48,13 @@ static void * evalCC(Region * region, void * value) {
     ExprCC * expr = value;
 
     Expr * headval = eval(region, expr->car);
-    if (headval == NULL) return NULL;
+    IFNRET(headval);
 
     Array * argbuf = expandList(expr->cdr);
 
-    if (argbuf == NULL) return throw(TypeErrorTag, "%s expected to be an argument list", showExpr(expr->cdr));
+    if (argbuf == NULL) return throw(
+        TypeErrorTag, "%s expected to be an argument list", showExpr(expr->cdr)
+    );
 
     void * retval = apply(region, headval, argbuf);
     freeArray(argbuf); free(argbuf); return retval;
@@ -86,13 +88,15 @@ static void deleteCC(void * value) {
     UNUSED(value);
 }
 
-static void moveCC(Region * dest, Region * src, void * value) {
+static void * moveCC(Region * dest, Region * src, void * value) {
     UNUSED(src);
 
-    ExprCC * expr = value;
+    ExprCC * expr = value; void * retptr = value;
 
-    move(dest, expr->car);
-    move(dest, expr->cdr);
+    if (move(dest, expr->car) == NULL) retptr = NULL;
+    if (move(dest, expr->cdr) == NULL) retptr = NULL;
+
+    return retptr;
 }
 
 static bool equalCC(void * value1, void * value2) {
@@ -116,9 +120,7 @@ void * externList(Region * region, Array * xs) {
     void * retval = &exprNil;
 
     for (size_t i = 1; i <= xs->size; i++) {
-        Expr * o = eval(region, getArray(xs, xs->size - i));
-        if (o == NULL) return NULL;
-
+        Expr * o = eval(region, getArray(xs, xs->size - i)); IFNRET(o);
         retval = newCC(region, o, retval);
     }
 
@@ -126,10 +128,10 @@ void * externList(Region * region, Array * xs) {
 }
 
 static inline void * evalEnsureCC(Region * region, void * value) {
-    void * o = eval(region, value);
-    if (o == NULL) return NULL;
+    void * o = eval(region, value); IFNRET(o);
 
-    if (tagof(o) != exprCCTag) return throw(TypeErrorTag, "%s expected to be a cons cell", showExpr(o));
+    if (tagof(o) != exprCCTag)
+        return throw(TypeErrorTag, "%s expected to be a cons cell", showExpr(o));
 
     return o;
 }
@@ -138,7 +140,7 @@ void * externCar(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
-    if (consval == NULL) return NULL;
+    IFNRET(consval);
 
     return consval->car;
 }
@@ -147,7 +149,7 @@ void * externCdr(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
-    if (consval == NULL) return NULL;
+    IFNRET(consval);
 
     return consval->cdr;
 }
@@ -155,11 +157,8 @@ void * externCdr(Region * region, Array * xs) {
 void * externCons(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
-    void * car = eval(region, getArray(xs, 0));
-    if (car == NULL) return NULL;
-
-    void * cdr = eval(region, getArray(xs, 1));
-    if (cdr == NULL) return NULL;
+    void * car = eval(region, getArray(xs, 0)); IFNRET(car);
+    void * cdr = eval(region, getArray(xs, 1)); IFNRET(cdr);
 
     return newCC(region, car, cdr);
 }
@@ -168,12 +167,13 @@ void * externSetcar(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
-    if (consval == NULL) return NULL;
+    IFNRET(consval);
 
     void * car = eval(region, getArray(xs, 1));
-    if (car == NULL) return NULL;
+    IFNRET(car);
 
-    move(ownerof(consval), car);
+    IFNRET(move(ownerof(consval), car));
+
     consval->car = car;
     return &exprNil;
 }
@@ -182,12 +182,13 @@ void * externSetcdr(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
     ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
-    if (consval == NULL) return NULL;
+    IFNRET(consval);
 
     void * cdr = eval(region, getArray(xs, 1));
-    if (cdr == NULL) return NULL;
+    IFNRET(cdr);
 
-    move(ownerof(consval), cdr);
+    IFNRET(move(ownerof(consval), cdr));
+
     consval->cdr = cdr;
     return &exprNil;
 }

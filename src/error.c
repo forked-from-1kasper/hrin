@@ -46,3 +46,4 @@ ErrorTag UnknownErrorTag = "UnknownError";
 ErrorTag NameErrorTag    = "NameError";
 ErrorTag OOMErrorTag     = "OOMError";
 ErrorTag TypeErrorTag    = "TypeError";
+ErrorTag RegionErrorTag  = "RegionError";

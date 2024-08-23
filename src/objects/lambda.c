@@ -25,7 +25,9 @@ static void * applyMacro(Region * region, void * value, Array * xs) {
     if (o == NULL) goto finally;
 
     retval = eval(region, o);
-    if (retval != NULL) move(region, retval);
+
+    if (retval == NULL) goto finally;
+    if (move(region, retval) == NULL) retval = NULL;
 
     finally: deleteScope(nested->scope); deleteRegion(nested);
 
@@ -50,7 +52,9 @@ static void * applyLambda(Region * region, void * value, Array * xs) {
     }
 
     retval = eval(nested, expr->value);
-    if (retval != NULL) move(region, retval);
+
+    if (retval == NULL) goto finally;
+    if (move(region, retval) == NULL) retval = NULL;
 
     finally: deleteScope(nested->scope); deleteRegion(nested);
 
@@ -83,31 +87,43 @@ static void deleteLexical(void * value) {
     freeArray(&expr->vars);
 }
 
-static void moveTree(Region * region, void * n, int nbit) {
+static void * moveTree(Region * region, void * n, int nbit) {
+    void * retptr = n;
+
     if (nbit == 0) {
         BinaryTreeValue * btv = n;
-        if (btv->value != NULL)
-            move(region, btv->value);
+        if (btv->value != NULL && move(region, btv->value) == NULL)
+            retptr = NULL;
 
         nbit = 8;
     }
 
     BinaryTreeNode * btn = n;
 
-    if (btn->next[0] != NULL) moveTree(region, btn->next[0], nbit - 1);
-    if (btn->next[1] != NULL) moveTree(region, btn->next[1], nbit - 1);
+    if (btn->next[0] != NULL && moveTree(region, btn->next[0], nbit - 1) == NULL)
+        retptr = NULL;
+
+    if (btn->next[1] != NULL && moveTree(region, btn->next[1], nbit - 1) == NULL)
+        retptr = NULL;
+
+    return retptr;
 }
 
-static inline void moveTrie(Region * region, Trie * T)
-{ moveTree(region, &T->root, 0); }
+static inline void * moveTrie(Region * region, Trie * T)
+{ return moveTree(region, &T->root, 0); }
 
-static void moveLexical(Region * dest, Region * src, void * value) {
+static void * moveLexical(Region * dest, Region * src, void * value) {
     UNUSED(src);
 
-    ExprLexical * expr = value;
+    ExprLexical * expr = value; void * retptr = value;
 
-    moveTrie(dest, &expr->scope->context);
-    move(dest, expr->value);
+    if (moveTrie(dest, &expr->scope->context) == NULL)
+        retptr = NULL;
+
+    if (move(dest, expr->value) == NULL)
+        retptr = NULL;
+
+    return retptr;
 }
 
 static ExprTagImpl exprLambdaImpl = {

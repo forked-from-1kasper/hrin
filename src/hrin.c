@@ -25,10 +25,9 @@ void * externDefine(Region * region, Array * xs) {
     ExprAtom * i = getArray(xs, 0);
     if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
 
-    Expr * o = eval(region, getArray(xs, 1));
-    if (o == NULL) return NULL;
+    Expr * o = eval(region, getArray(xs, 1)); IFNRET(o);
 
-    move(rootRegion, o);
+    IFNRET(move(rootRegion, o));
     setVar(rootRegion->scope, i->value, o);
 
     return &exprNil;
@@ -40,8 +39,7 @@ void * externDeflocal(Region * region, Array * xs) {
     ExprAtom * i = getArray(xs, 0);
     if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
 
-    Expr * o = eval(region, getArray(xs, 1));
-    if (o == NULL) return NULL;
+    Expr * o = eval(region, getArray(xs, 1)); IFNRET(o);
 
     setVar(region->scope, i->value, o);
 
@@ -53,7 +51,7 @@ void * externProgn(Region * region, Array * xs) {
 
     for (size_t i = 0; i < xs->size; i++) {
         retval = eval(region, getArray(xs, i));
-        if (retval == NULL) return NULL;
+        IFNRET(retval);
     }
 
     return retval;
@@ -69,18 +67,24 @@ void * externQuote(Region * region, Array * xs) {
 void * externEval(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
-    Expr * o = eval(region, getArray(xs, 0));
-    if (o == NULL) return NULL;
+    Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
 
     return eval(region, o);
 }
 
 void * externPrint(Region * region, Array * xs) {
     for (size_t i = 0; i < xs->size; i++) {
-        void * o = eval(region, getArray(xs, i));
-        if (o == NULL) return NULL;
-
+        void * o = eval(region, getArray(xs, i)); IFNRET(o);
         printf("%s", tagof(o) == exprStringTag ? ((ExprString *) o)->value : showExpr(o));
+    }
+
+    return &exprNil;
+}
+
+void * externBorrow(Region * region, Array * xs) {
+    for (size_t i = 0; i < xs->size; i++) {
+        Expr * o = eval(region, getArray(xs, i)); IFNRET(o);
+        o->mask |= MASK_BORROWED;
     }
 
     return &exprNil;
@@ -143,6 +147,8 @@ ErrorTag scanLine(FILE * file) {
 }
 
 int main(int argc, char * argv[]) {
+    initExpr();
+
     Scope * globalScope = newScope(NULL);
     globalScope->lexical = false;
 
@@ -165,6 +171,7 @@ int main(int argc, char * argv[]) {
     setVar(rootRegion->scope, "quote",    newExtern(rootRegion, externQuote));
     setVar(rootRegion->scope, "eval",     newExtern(rootRegion, externEval));
     setVar(rootRegion->scope, "print!",   newExtern(rootRegion, externPrint));
+    setVar(rootRegion->scope, "borrow!",  newExtern(rootRegion, externBorrow));
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");
@@ -177,7 +184,7 @@ int main(int argc, char * argv[]) {
     deleteRegion(rootRegion);
     deleteScope(globalScope);
 
-    deallocExprBuffers();
+    deinitExpr();
 
     return 0;
 }

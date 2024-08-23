@@ -20,8 +20,10 @@ static void deleteExtern(void * value) {
     UNUSED(value);
 }
 
-static void moveExtern(Region * dest, Region * src, void * value) {
+static void * moveExtern(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
+
+    return value;
 }
 
 static ExprTagImpl exprExternImpl = {

@@ -29,10 +29,14 @@ struct _Region {
 };
 
 typedef int ExprTag;
-typedef struct { ExprTag tag; Region * owner; } Expr;
+typedef struct { ExprTag tag; Region * owner; uint8_t mask; } Expr;
+
+enum {
+    MASK_BORROWED = 1 << 0,
+};
 
 typedef struct {
-    void (* move)(Region * dest, Region * src, void *);
+    void * (* move)(Region * dest, Region * src, void *);
     void * (* apply)(Region *, void *, Array *);
     void * (* eval)(Region *, void *);
     bool (* equal)(void *, void *);
@@ -48,7 +52,8 @@ ExprTag newExprTag(ExprTagImpl);
 void * newExpr(Region *, ExprTag);
 void newExprImmortal(ExprTag, ...);
 
-void move(Region *, Expr *);
+void * move(Region *, Expr *);
+void invalidate(void *);
 void delete(void *);
 
 void * apply(Region *, void *, Array *);
@@ -57,7 +62,8 @@ void * eval(Region *, void *);
 size_t show(char *, size_t, void *);
 bool equal(void *, void *);
 
-void deallocExprBuffers(void);
+void initExpr(void);
+void deinitExpr(void);
 
 Scope * newScope(Scope *);
 void deleteScope(Scope *);
@@ -85,5 +91,7 @@ void * applyThrowError(Region *, void *, Array *);
 
 static inline size_t ellipsis(char * buf)
 { strcpy(buf, "..."); return 3; }
+
+#define IFNRET(x) if ((x) == NULL) return NULL;
 
 #endif
