@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include <limits.h>
 
 #include <avl.h>
 #include <trie.h>
@@ -20,6 +21,8 @@ struct _Scope {
 };
 
 typedef struct _Region Region;
+
+#define INDEX_MAX INT_MAX
 
 struct _Region {
     int index;

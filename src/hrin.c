@@ -23,7 +23,9 @@ void * externDefine(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
     ExprAtom * i = getArray(xs, 0);
-    if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
+    if (tagof(i) != exprAtomTag) return throw(
+        TypeErrorTag, "%s expected to be an atom", showExpr(i)
+    );
 
     Expr * o = eval(region, getArray(xs, 1)); IFNRET(o);
 
@@ -37,7 +39,9 @@ void * externDeflocal(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
     ExprAtom * i = getArray(xs, 0);
-    if (tagof(i) != exprAtomTag) return throw(TypeErrorTag, "%s expected to be an atom", showExpr(i));
+    if (tagof(i) != exprAtomTag) return throw(
+        TypeErrorTag, "%s expected to be an atom", showExpr(i)
+    );
 
     Expr * o = eval(region, getArray(xs, 1)); IFNRET(o);
 
@@ -90,6 +94,13 @@ void * externBorrow(Region * region, Array * xs) {
     return &exprNil;
 }
 
+void * externBorrowed(Region * region, Array * xs) {
+    ARITY(1, xs->size);
+
+    Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
+    return newBool(o->mask & MASK_BORROWED);
+}
+
 ErrorTag printError() {
     ErrorTag error = getThrownError();
     if (error == NULL) return NULL;
@@ -104,6 +115,8 @@ ErrorTag printError() {
 
 void scanModule(FILE * file) {
     Region * moduleRegion = newRegion(rootRegion);
+    if (moduleRegion == NULL) { printError(); return; }
+
     moduleRegion->scope = newScope(rootRegion->scope);
 
     for (;;) {
@@ -123,6 +136,8 @@ ErrorTag scanLine(FILE * file) {
     ErrorTag retval = NULL;
 
     Region * region = newRegion(rootRegion);
+    if (region == NULL) return printError();
+
     region->scope = newScope(rootRegion->scope);
 
     Expr * e1 = takeExprToplevel(region, file);
@@ -165,13 +180,14 @@ int main(int argc, char * argv[]) {
     initStringTag(rootRegion);
     initLexicalTags(rootRegion);
 
-    setVar(rootRegion->scope, "define",   newExtern(rootRegion, externDefine));
-    setVar(rootRegion->scope, "progn",    newExtern(rootRegion, externProgn));
-    setVar(rootRegion->scope, "deflocal", newExtern(rootRegion, externDeflocal));
-    setVar(rootRegion->scope, "quote",    newExtern(rootRegion, externQuote));
-    setVar(rootRegion->scope, "eval",     newExtern(rootRegion, externEval));
-    setVar(rootRegion->scope, "print!",   newExtern(rootRegion, externPrint));
-    setVar(rootRegion->scope, "borrow!",  newExtern(rootRegion, externBorrow));
+    setVar(rootRegion->scope, "define",    newExtern(rootRegion, externDefine));
+    setVar(rootRegion->scope, "progn",     newExtern(rootRegion, externProgn));
+    setVar(rootRegion->scope, "deflocal",  newExtern(rootRegion, externDeflocal));
+    setVar(rootRegion->scope, "quote",     newExtern(rootRegion, externQuote));
+    setVar(rootRegion->scope, "eval",      newExtern(rootRegion, externEval));
+    setVar(rootRegion->scope, "print!",    newExtern(rootRegion, externPrint));
+    setVar(rootRegion->scope, "borrow!",   newExtern(rootRegion, externBorrow));
+    setVar(rootRegion->scope, "borrowed?", newExtern(rootRegion, externBorrowed));
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");

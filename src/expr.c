@@ -94,7 +94,7 @@ static inline void takeOwnership(Region * region, Expr * o) {
 
 void * newExpr(Region * region, ExprTag tag) {
     Expr * o = malloc(exprTagImpl[tag].size);
-    if (o == NULL) return NULL;
+    if (o == NULL) return throw(OOMErrorTag, NULL);
 
     o->tag = tag;
     o->mask = 0;
@@ -182,7 +182,7 @@ void * move(Region * dest, Expr * o) {
 
 Scope * newScope(Scope * next) {
     Scope * scope = malloc(sizeof(Scope));
-    if (scope == NULL) return NULL;
+    if (scope == NULL) return throw(OOMErrorTag, NULL);
 
     scope->lexical = true;
     scope->context = newTrie();
@@ -197,8 +197,11 @@ void deleteScope(Scope * scope) {
 }
 
 Region * newRegion(Region * parent) {
+    if (indexof(parent) == INDEX_MAX)
+        return throw(OOMErrorTag, "maximum region depth exceeded");
+
     Region * region = malloc(sizeof(Region));
-    if (region == NULL) return NULL;
+    if (region == NULL) return throw(OOMErrorTag, NULL);
 
     region->index  = indexof(parent) + 1;
     region->scope  = NULL;

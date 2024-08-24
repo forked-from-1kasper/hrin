@@ -13,8 +13,8 @@ static void * applyMacro(Region * region, void * value, Array * xs) {
 
     ARITY(expr->vars.size, xs->size);
 
-    Region * nested = newRegion(region);
-    nested->scope = newScope(expr->scope);
+    Region * nested = newRegion(region); IFNRET(nested);
+    nested->scope = newScope(expr->scope); // TODO
 
     void * retval = NULL;
 
@@ -39,8 +39,8 @@ static void * applyLambda(Region * region, void * value, Array * xs) {
 
     ARITY(expr->vars.size, xs->size);
 
-    Region * nested = newRegion(region);
-    nested->scope = newScope(expr->scope);
+    Region * nested = newRegion(region); IFNRET(nested);
+    nested->scope = newScope(expr->scope); // TODO
 
     void * retval = NULL;
 
