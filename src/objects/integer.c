@@ -42,10 +42,11 @@ static ExprTagImpl exprIntegerImpl = {
 ExprTag exprIntegerTag;
 
 static inline void * evalEnsureInteger(Region * region, void * value) {
-    void * o = eval(region, value);
-    if (o == NULL) return NULL;
+    void * o = eval(region, value); IFNRET(o);
 
-    if (tagof(o) != exprIntegerTag) return throw(TypeErrorTag, "%s expected to be an integer", showExpr(o));
+    if (tagof(o) != exprIntegerTag) return throw(
+        TypeErrorTag, "%s expected to be an integer", showExpr(o)
+    );
 
     return o;
 }
@@ -55,7 +56,7 @@ void * externAddi(Region * region, Array * xs) {
 
     for (size_t i = 0; i < xs->size; i++) {
         ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i));
-        if (argval == NULL) return NULL;
+        IFNRET(argval);
 
         intval += argval->value;
     }
@@ -63,12 +64,21 @@ void * externAddi(Region * region, Array * xs) {
     return newInteger(region, intval);
 }
 
+void * externSubi(Region * region, Array * xs) {
+    ARITY(2, xs->size);
+
+    ExprInteger * i1 = evalEnsureInteger(region, getArray(xs, 0)); IFNRET(i1);
+    ExprInteger * i2 = evalEnsureInteger(region, getArray(xs, 1)); IFNRET(i2);
+
+    return newInteger(region, i1->value - i2->value);
+}
+
 void * externMuli(Region * region, Array * xs) {
     Integer intval = 1;
 
     for (size_t i = 0; i < xs->size; i++) {
         ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i));
-        if (argval == NULL) return NULL;
+        IFNRET(argval);
 
         intval *= argval->value;
     }
@@ -80,15 +90,36 @@ void * externNegi(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
     ExprInteger * argval = evalEnsureInteger(region, getArray(xs, 0));
-    if (argval == NULL) return NULL;
+    IFNRET(argval);
 
     return newInteger(region, -argval->value);
+}
+
+void * externDivi(Region * region, Array * xs) {
+    ARITY(2, xs->size);
+
+    ExprInteger * i1 = evalEnsureInteger(region, getArray(xs, 0)); IFNRET(i1);
+    ExprInteger * i2 = evalEnsureInteger(region, getArray(xs, 1)); IFNRET(i2);
+
+    return newInteger(region, i1->value / i2->value);
+}
+
+void * externModi(Region * region, Array * xs) {
+    ARITY(2, xs->size);
+
+    ExprInteger * i1 = evalEnsureInteger(region, getArray(xs, 0)); IFNRET(i1);
+    ExprInteger * i2 = evalEnsureInteger(region, getArray(xs, 1)); IFNRET(i2);
+
+    return newInteger(region, i1->value % i2->value);
 }
 
 void initIntegerTag(Region * region) {
     exprIntegerTag = newExprTag(exprIntegerImpl);
 
     setVar(region->scope, "addi", newExtern(region, externAddi));
+    setVar(region->scope, "subi", newExtern(region, externSubi));
     setVar(region->scope, "muli", newExtern(region, externMuli));
+    setVar(region->scope, "divi", newExtern(region, externDivi));
+    setVar(region->scope, "modi", newExtern(region, externModi));
     setVar(region->scope, "negi", newExtern(region, externNegi));
 }
