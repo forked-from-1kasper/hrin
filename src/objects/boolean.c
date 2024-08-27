@@ -43,8 +43,7 @@ ExprBoolean exprTrue, exprFalse;
 void * externNot(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
-    void * o = eval(region, getArray(xs, 0));
-    if (o == NULL) return NULL;
+    void * o = eval(region, getArray(xs, 0)); IFNRET(o);
 
     if (o == &exprFalse) return &exprTrue;
     if (o == &exprTrue)  return &exprFalse;
@@ -54,8 +53,7 @@ void * externNot(Region * region, Array * xs) {
 
 void * externAndalso(Region * region, Array * xs) {
     for (size_t i = 0; i < xs->size; i++) {
-        void * o = eval(region, getArray(xs, i));
-        if (o == NULL)       return NULL;
+        void * o = eval(region, getArray(xs, i)); IFNRET(o);
         if (o == &exprFalse) return &exprFalse;
     }
 
@@ -64,8 +62,7 @@ void * externAndalso(Region * region, Array * xs) {
 
 void * externOrelse(Region * region, Array * xs) {
     for (size_t i = 0; i < xs->size; i++) {
-        void * o = eval(region, getArray(xs, i));
-        if (o == NULL)      return NULL;
+        void * o = eval(region, getArray(xs, i)); IFNRET(o);
         if (o == &exprTrue) return &exprTrue;
     }
 
@@ -75,7 +72,7 @@ void * externOrelse(Region * region, Array * xs) {
 void * externIte(Region * region, Array * xs) {
     ARITY(3, xs->size);
 
-    void * b = eval(region, getArray(xs, 0));
+    void * b = eval(region, getArray(xs, 0)); IFNRET(b);
 
     if (b == &exprTrue)  return eval(region, getArray(xs, 1));
     if (b == &exprFalse) return eval(region, getArray(xs, 2));
@@ -86,11 +83,8 @@ void * externIte(Region * region, Array * xs) {
 void * externEqual(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
-    void * o1 = eval(region, getArray(xs, 0));
-    if (o1 == NULL) return NULL;
-
-    void * o2 = eval(region, getArray(xs, 1));
-    if (o2 == NULL) return NULL;
+    void * o1 = eval(region, getArray(xs, 0)); IFNRET(o1);
+    void * o2 = eval(region, getArray(xs, 1)); IFNRET(o2);
 
     return newBool(equal(o1, o2));
 }
