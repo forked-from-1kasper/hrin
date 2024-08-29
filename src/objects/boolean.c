@@ -89,6 +89,15 @@ void * externEqual(Region * region, Array * xs) {
     return newBool(equal(o1, o2));
 }
 
+void * externRefeq(Region * region, Array * xs) {
+    ARITY(2, xs->size);
+
+    void * o1 = eval(region, getArray(xs, 0)); IFNRET(o1);
+    void * o2 = eval(region, getArray(xs, 1)); IFNRET(o2);
+
+    return newBool(o1 == o2);
+}
+
 void initBooleanTag(Region * region) {
     exprBooleanTag = newExprTag(exprBooleanImpl);
 
@@ -101,4 +110,5 @@ void initBooleanTag(Region * region) {
     setVar(region->scope, "orelse",  newExtern(region, externOrelse));
     setVar(region->scope, "ite",     newExtern(region, externIte));
     setVar(region->scope, "equal?",  newExtern(region, externEqual));
+    setVar(region->scope, "refeq?",  newExtern(region, externRefeq));
 }
