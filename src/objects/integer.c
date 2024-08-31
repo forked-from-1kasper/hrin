@@ -159,6 +159,24 @@ void * externLti(Region * region, Array * xs) {
     return newBool(i1->value < i2->value);
 }
 
+void * externGei(Region * region, Array * xs) {
+    ARITY(2, xs->size);
+
+    ExprInteger * i1 = evalEnsureInteger(region, getArray(xs, 0)); IFNRET(i1);
+    ExprInteger * i2 = evalEnsureInteger(region, getArray(xs, 1)); IFNRET(i2);
+
+    return newBool(i1->value >= i2->value);
+}
+
+void * externGti(Region * region, Array * xs) {
+    ARITY(2, xs->size);
+
+    ExprInteger * i1 = evalEnsureInteger(region, getArray(xs, 0)); IFNRET(i1);
+    ExprInteger * i2 = evalEnsureInteger(region, getArray(xs, 1)); IFNRET(i2);
+
+    return newBool(i1->value > i2->value);
+}
+
 void initIntegerTag(Region * region) {
     exprIntegerTag = newExprTag(exprIntegerImpl);
 
@@ -173,4 +191,6 @@ void initIntegerTag(Region * region) {
     setVar(region->scope, "xori", newExtern(region, externXori));
     setVar(region->scope, "lei",  newExtern(region, externLei));
     setVar(region->scope, "lti",  newExtern(region, externLti));
+    setVar(region->scope, "gei",  newExtern(region, externGei));
+    setVar(region->scope, "gti",  newExtern(region, externGti));
 }
