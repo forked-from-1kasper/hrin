@@ -128,7 +128,7 @@ void * apply(Region * region, void * f, Array * xs) {
 
 void * eval(Region * region, void * value) {
     Expr * o = exprTagImpl[tagof(value)].eval(region, value);
-    if (o == NULL) printf("↳ %s\n", showExpr(value));
+    if (o == NULL) fprintf(stderr, "↳ %s\n", showExpr(value));
 
     return o;
 }

@@ -107,8 +107,8 @@ ErrorTag printError() {
 
     const char * errorBuffer = getErrorBuffer();
 
-    if (strlen(errorBuffer) > 0) printf("!!! %s: %s\n", error, errorBuffer);
-    else printf("!!! %s\n", error);
+    if (strlen(errorBuffer) > 0) fprintf(stderr, "!!! %s: %s\n", error, errorBuffer);
+    else fprintf(stderr, "!!! %s\n", error);
 
     return error;
 }
@@ -191,7 +191,7 @@ int main(int argc, char * argv[]) {
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");
-        if (fin == NULL) printf("Cannot open “%s”\n", argv[i]);
+        if (fin == NULL) fprintf(stderr, "Cannot open “%s”\n", argv[i]);
         else { scanModule(fin); fclose(fin); }
     }
 
