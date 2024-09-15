@@ -1,9 +1,14 @@
 #ifndef INTEGER_H
 #define INTEGER_H
 
+#include <limits.h>
+
 #include <expr.h>
 
 typedef long long int Integer;
+
+#define INTEGER_MIN LLONG_MIN
+#define INTEGER_MAX LLONG_MAX
 
 typedef struct { Expr _expr; Integer value; } ExprInteger;
 

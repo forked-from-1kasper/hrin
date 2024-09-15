@@ -43,16 +43,15 @@ static ExprTagImpl exprIntegerImpl = {
 ExprTag exprIntegerTag;
 
 void * externAddi(Region * region, Array * xs) {
-    Integer intval = 0;
+    Integer retval = 0;
 
     for (size_t i = 0; i < xs->size; i++) {
-        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i));
-        IFNRET(argval);
+        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i)); IFNRET(argval);
 
-        intval += argval->value;
+        retval += argval->value;
     }
 
-    return newInteger(region, intval);
+    return newInteger(region, retval);
 }
 
 void * externSubi(Region * region, Array * xs) {
@@ -65,16 +64,15 @@ void * externSubi(Region * region, Array * xs) {
 }
 
 void * externMuli(Region * region, Array * xs) {
-    Integer intval = 1;
+    Integer retval = 1;
 
     for (size_t i = 0; i < xs->size; i++) {
-        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i));
-        IFNRET(argval);
+        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i)); IFNRET(argval);
 
-        intval *= argval->value;
+        retval *= argval->value;
     }
 
-    return newInteger(region, intval);
+    return newInteger(region, retval);
 }
 
 void * externNegi(Region * region, Array * xs) {
@@ -84,6 +82,30 @@ void * externNegi(Region * region, Array * xs) {
     IFNRET(argval);
 
     return newInteger(region, -argval->value);
+}
+
+void * externMaxi(Region * region, Array * xs) {
+    Integer retval = INTEGER_MIN;
+
+    for (size_t i = 0; i < xs->size; i++) {
+        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i)); IFNRET(argval);
+
+        retval = max(retval, argval->value);
+    }
+
+    return newInteger(region, retval);
+}
+
+void * externMini(Region * region, Array * xs) {
+    Integer retval = INTEGER_MAX;
+
+    for (size_t i = 0; i < xs->size; i++) {
+        ExprInteger * argval = evalEnsureInteger(region, getArray(xs, i)); IFNRET(argval);
+
+        retval = min(retval, argval->value);
+    }
+
+    return newInteger(region, retval);
 }
 
 void * externDivi(Region * region, Array * xs) {
@@ -172,6 +194,8 @@ void initIntegerTag(Region * region) {
 
     setVar(region->scope, "addi", newExtern(region, externAddi));
     setVar(region->scope, "subi", newExtern(region, externSubi));
+    setVar(region->scope, "maxi", newExtern(region, externMaxi));
+    setVar(region->scope, "mini", newExtern(region, externMini));
     setVar(region->scope, "muli", newExtern(region, externMuli));
     setVar(region->scope, "divi", newExtern(region, externDivi));
     setVar(region->scope, "modi", newExtern(region, externModi));
