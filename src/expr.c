@@ -96,8 +96,8 @@ void * newExpr(Region * region, ExprTag tag) {
     Expr * o = malloc(exprTagImpl[tag].size);
     if (o == NULL) return throw(OOMErrorTag, NULL);
 
-    o->tag = tag;
-    o->mask = 0;
+    o->tag      = tag;
+    o->lifetime = -1;
 
     takeOwnership(region, o);
 
@@ -171,8 +171,8 @@ void * move(Region * dest, Expr * o) {
     if (exprTagImpl[o->tag].move(dest, src, o) == NULL)
         retptr = NULL;
 
-    if (o->mask & MASK_BORROWED) {
-        throw(RegionErrorTag, "attempt to move a borrowed value: %s", showExpr(o));
+    if (dest->index < o->lifetime) {
+        throw(RegionErrorTag, "attempt to move value beyond its lifetime: %s", showExpr(o));
         invalidate(o);
         retptr = NULL;
     }

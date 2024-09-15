@@ -85,20 +85,24 @@ void * externPrint(Region * region, Array * xs) {
     return &exprNil;
 }
 
-void * externBorrow(Region * region, Array * xs) {
-    for (size_t i = 0; i < xs->size; i++) {
-        Expr * o = eval(region, getArray(xs, i)); IFNRET(o);
-        o->mask |= MASK_BORROWED;
+void * externLifetime(Region * region, Array * xs) {
+    switch (xs->size) {
+        case 0: return newInteger(region, region->index);
+        case 1: {
+            Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
+            return newInteger(region, o->lifetime);
+        }
+        case 2: {
+            Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
+            ExprInteger * i = evalEnsureInteger(region, getArray(xs, 1)); IFNRET(i);
+
+            if (o->owner->index < i->value) return throw(RegionErrorTag, "lifetime cannot be shorter than the lifetime of the owning region");
+            if (i->value < o->lifetime) return throw(RegionErrorTag, "lifetime should be non-increasing");
+
+            o->lifetime = i->value; return &exprNil;
+        }
+        default: return throw(TypeErrorTag, "expected at most 2 arguments but %zu were given", xs->size);
     }
-
-    return &exprNil;
-}
-
-void * externBorrowed(Region * region, Array * xs) {
-    ARITY(1, xs->size);
-
-    Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
-    return newBool(o->mask & MASK_BORROWED);
 }
 
 ErrorTag printError() {
@@ -186,8 +190,7 @@ int main(int argc, char * argv[]) {
     setVar(rootRegion->scope, "quote",     newExtern(rootRegion, externQuote));
     setVar(rootRegion->scope, "eval",      newExtern(rootRegion, externEval));
     setVar(rootRegion->scope, "print!",    newExtern(rootRegion, externPrint));
-    setVar(rootRegion->scope, "borrow!",   newExtern(rootRegion, externBorrow));
-    setVar(rootRegion->scope, "borrowed?", newExtern(rootRegion, externBorrowed));
+    setVar(rootRegion->scope, "lifetime",  newExtern(rootRegion, externLifetime));
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");

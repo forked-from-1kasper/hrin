@@ -19,4 +19,14 @@ static inline void * newInteger(Region * region, Integer value) {
     return retval;
 }
 
+static inline void * evalEnsureInteger(Region * region, void * value) {
+    void * o = eval(region, value); IFNRET(o);
+
+    if (tagof(o) != exprIntegerTag) return throw(
+        TypeErrorTag, "%s expected to be an integer", showExpr(o)
+    );
+
+    return o;
+}
+
 #endif

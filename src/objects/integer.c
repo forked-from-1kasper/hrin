@@ -42,16 +42,6 @@ static ExprTagImpl exprIntegerImpl = {
 
 ExprTag exprIntegerTag;
 
-static inline void * evalEnsureInteger(Region * region, void * value) {
-    void * o = eval(region, value); IFNRET(o);
-
-    if (tagof(o) != exprIntegerTag) return throw(
-        TypeErrorTag, "%s expected to be an integer", showExpr(o)
-    );
-
-    return o;
-}
-
 void * externAddi(Region * region, Array * xs) {
     Integer intval = 0;
 

@@ -5,6 +5,8 @@ define[implies; Λ[P; Q; list[quote[orelse]; list[quote[not]; P]; Q]]];
 
 define[xgetter; Λ[quote[x]]];
 
+define[borrow; Λ[x; list[quote[lifetime]; x; list[quote[lifetime]]]]];
+
 progn[
   deflocal[locvar; 11];
   define[getvar; λ[locvar]]

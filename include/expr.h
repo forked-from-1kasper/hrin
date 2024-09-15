@@ -32,11 +32,7 @@ struct _Region {
 };
 
 typedef int ExprTag;
-typedef struct { ExprTag tag; Region * owner; uint8_t mask; } Expr;
-
-enum {
-    MASK_BORROWED = 1 << 0,
-};
+typedef struct { ExprTag tag; Region * owner; int lifetime; } Expr;
 
 typedef struct {
     void * (* move)(Region * dest, Region * src, void *);
