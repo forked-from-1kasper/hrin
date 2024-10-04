@@ -127,11 +127,13 @@ void * externList(Region * region, Array * xs) {
     return retval;
 }
 
+static inline void * throwTypeErrorCC(void * o)
+{ return throw(TypeErrorTag, "%s expected to be a cons cell", showExpr(o)); }
+
 static inline void * evalEnsureCC(Region * region, void * value) {
     void * o = eval(region, value); IFNRET(o);
 
-    if (tagof(o) != exprCCTag)
-        return throw(TypeErrorTag, "%s expected to be a cons cell", showExpr(o));
+    if (tagof(o) != exprCCTag) return throwTypeErrorCC(o);
 
     return o;
 }
@@ -139,19 +141,27 @@ static inline void * evalEnsureCC(Region * region, void * value) {
 void * externCar(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
-    ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
-    IFNRET(consval);
+    void * o = eval(region, getArray(xs, 0)); IFNRET(o);
 
-    return consval->car;
+    if (tagof(o) == exprNilTag)
+        return &exprNil;
+    else if (tagof(o) == exprCCTag)
+        return CC(o)->car;
+    else
+        return throwTypeErrorCC(o);
 }
 
 void * externCdr(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
-    ExprCC * consval = evalEnsureCC(region, getArray(xs, 0));
-    IFNRET(consval);
+    void * o = eval(region, getArray(xs, 0)); IFNRET(o);
 
-    return consval->cdr;
+    if (tagof(o) == exprNilTag)
+        return &exprNil;
+    else if (tagof(o) == exprCCTag)
+        return CC(o)->cdr;
+    else
+        return throwTypeErrorCC(o);
 }
 
 void * externCons(Region * region, Array * xs) {

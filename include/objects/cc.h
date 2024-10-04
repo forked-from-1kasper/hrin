@@ -5,6 +5,8 @@
 
 typedef struct { Expr _expr; void * car, * cdr; } ExprCC;
 
+#define CC(o) ((ExprCC *) (o))
+
 extern ExprTag exprCCTag;
 void initCCTag(Region *);
 
