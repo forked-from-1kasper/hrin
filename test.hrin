@@ -1,3 +1,7 @@
+define[cadr;   λ[x; car[cdr[x]]]];
+define[caddr;  λ[x; car[cdr[cdr[x]]]]];
+define[cadddr; λ[x; car[cdr[cdr[cdr[x]]]]]];
+
 define[inc; λ[x; addi[x; +1]]];
 define[dec; λ[x; addi[x; -1]]];
 
