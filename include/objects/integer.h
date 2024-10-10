@@ -12,6 +12,8 @@ typedef long long int Integer;
 
 typedef struct { Expr _expr; Integer value; } ExprInteger;
 
+#define INTEGER(o) ((ExprInteger *) (o))
+
 extern ExprTag exprIntegerTag;
 void initIntegerTag(Region *);
 

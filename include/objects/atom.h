@@ -9,8 +9,7 @@ extern ExprTag exprAtomTag;
 void initAtomTag(Region *);
 
 static inline void * newAtom(Region * region, char * buf) {
-    ExprAtom * retval = newExpr(region, exprAtomTag);
-    if (retval == NULL) return NULL;
+    ExprAtom * retval = newExpr(region, exprAtomTag); IFNRET(retval);
 
     retval->value = buf;
 

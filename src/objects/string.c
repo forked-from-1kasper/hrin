@@ -2,7 +2,16 @@
 
 #include <common.h>
 
+#include <objects/integer.h>
 #include <objects/string.h>
+#include <objects/byte.h>
+
+static void * applyString(Region * region, void * o, Array * xs) {
+    ARITY(1, xs->size);
+
+    ExprInteger * i = evalEnsureInteger(region, getArray(xs, 0)); IFNRET(i);
+    return newByte(region, STRING(o)->value[i->value]); // TODO: bounds check
+}
 
 static size_t showString(char * buf, size_t size, void * value) {
     ExprString * expr = value;
@@ -31,7 +40,7 @@ static bool equalString(void * value1, void * value2) {
 
 static ExprTagImpl exprStringImpl = {
     .eval   = evalNf,
-    .apply  = applyThrowError,
+    .apply  = applyString,
     .show   = showString,
     .delete = deleteString,
     .move   = moveString,

@@ -28,3 +28,7 @@ define[cycle₁; cons[quote[A]; nil]];
 define[cycle₂; cons[quote[B]; cycle₁]];
 
 setcdr![cycle₁; cycle₂];
+
+define[var3; "хрін"];
+print![var3[4]; ", "; var3[5]; "
+"];

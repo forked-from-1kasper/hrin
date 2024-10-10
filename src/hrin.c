@@ -10,6 +10,7 @@
 #include <objects/extern.h>
 #include <objects/string.h>
 #include <objects/lambda.h>
+#include <objects/byte.h>
 #include <objects/atom.h>
 #include <objects/nil.h>
 #include <objects/cc.h>
@@ -79,7 +80,7 @@ void * externEval(Region * region, Array * xs) {
 void * externPrint(Region * region, Array * xs) {
     for (size_t i = 0; i < xs->size; i++) {
         void * o = eval(region, getArray(xs, i)); IFNRET(o);
-        printf("%s", tagof(o) == exprStringTag ? ((ExprString *) o)->value : showExpr(o));
+        printf("%s", tagof(o) == exprStringTag ? STRING(o)->value : showExpr(o));
     }
 
     return &exprNil;
@@ -103,6 +104,15 @@ void * externLifetime(Region * region, Array * xs) {
         }
         default: return throw(TypeErrorTag, "expected at most 2 arguments but %zu were given", xs->size);
     }
+}
+
+void * externByte(Region * region, Array * xs) {
+    ARITY(1, xs->size);
+
+    Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
+
+    if (tagof(o) == exprIntegerTag) return newByte(region, INTEGER(o)->value);
+    else return throw(TypeErrorTag, "%s cannot be converted to “byte”", showExpr(o));
 }
 
 ErrorTag printError() {
@@ -181,6 +191,7 @@ int main(int argc, char * argv[]) {
     initBooleanTag(rootRegion);
     initAtomTag(rootRegion);
     initIntegerTag(rootRegion);
+    initByteTag(rootRegion);
     initStringTag(rootRegion);
     initLexicalTags(rootRegion);
 
@@ -191,6 +202,7 @@ int main(int argc, char * argv[]) {
     setVar(rootRegion->scope, "eval",      newExtern(rootRegion, externEval));
     setVar(rootRegion->scope, "print!",    newExtern(rootRegion, externPrint));
     setVar(rootRegion->scope, "lifetime",  newExtern(rootRegion, externLifetime));
+    setVar(rootRegion->scope, "byte",      newExtern(rootRegion, externByte));
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");
