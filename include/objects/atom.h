@@ -5,6 +5,8 @@
 
 typedef struct { Expr _expr; char * value; } ExprAtom;
 
+#define ATOM(o) ((ExprAtom *) (o))
+
 extern ExprTag exprAtomTag;
 void initAtomTag(Region *);
 

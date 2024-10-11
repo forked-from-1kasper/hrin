@@ -24,6 +24,13 @@ define[var2; var1];
 
 define[fact; λ[n; ite[equal?[n; 0]; 1; muli[n; fact[dec[n]]]]]];
 
+define[fib₁; λ[n; ite[equal?[n; 0]; 0;
+                  ite[equal?[n; 1]; 1;
+                  addi[fib₁[dec[n]]; fib₁[dec[dec[n]]]]]]]];
+
+define[fib′; λ[a; b; n; ite[equal?[n; 0]; a; fib′[b; addi[a; b]; dec[n]]]]];
+define[fib₂; λ[n; fib′[0; 1; n]]];
+
 define[cycle₁; cons[quote[A]; nil]];
 define[cycle₂; cons[quote[B]; cycle₁]];
 
