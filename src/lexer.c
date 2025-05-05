@@ -45,7 +45,7 @@ int lexerNextToken(FILE * stream, char * outbuf[]) {
 static int bufferedToken = -1;
 static char * lexerBuffer = NULL;
 
-char * getLexerBuffer()
+char * getLexerBuffer(void)
 { return lexerBuffer; }
 
 void pushToken(int token) {

@@ -5,7 +5,7 @@
 
 static ErrorTag availableErrorTag = 0;
 
-ErrorTag newErrorTag() {
+ErrorTag newErrorTag(void) {
     return availableErrorTag++;
 }
 
@@ -28,11 +28,11 @@ void * throw(ErrorTag tag, const char * format, ...) {
     return NULL;
 }
 
-const char * getErrorBuffer() {
+const char * getErrorBuffer(void) {
     return errorMessageBuffer;
 }
 
-ErrorTag getThrownError() {
+ErrorTag getThrownError(void) {
     ErrorTag retval = thrownError;
 
     thrownError = NULL;

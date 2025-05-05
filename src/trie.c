@@ -81,7 +81,7 @@ static void * copyTree(void * destAddr, const void * srcAddr, int nbit) {
     return destAddr;
 }
 
-Trie newTrie() {
+Trie newTrie(void) {
     return (Trie) {.root = {.node = {.next = {NULL, NULL}}, .value = NULL}};
 }
 

@@ -16,7 +16,7 @@ struct _TreeNode {
     TreeNode * right;
 };
 
-AVLTree newAVLTree();
+AVLTree newAVLTree(void);
 bool findAVLTree(AVLTree *, void *);
 void insertAVLTree(AVLTree *, void *);
 void deleteAVLTree(AVLTree *, void *);

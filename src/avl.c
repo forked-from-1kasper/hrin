@@ -127,7 +127,7 @@ static bool findTreeNode(TreeNode * n, void * value) {
         return true;
 }
 
-AVLTree newAVLTree() {
+AVLTree newAVLTree(void) {
     return (AVLTree) {.root = NULL};
 }
 

@@ -5,8 +5,8 @@ typedef char * ErrorTag;
 
 void * throw(ErrorTag tag, const char * format, ...);
 
-const char * getErrorBuffer();
-ErrorTag getThrownError();
+const char * getErrorBuffer(void);
+ErrorTag getThrownError(void);
 
 extern ErrorTag EOFErrorTag, SyntaxErrorTag, ApplyErrorTag, UnknownErrorTag, NameErrorTag, OOMErrorTag, TypeErrorTag, RegionErrorTag;
 

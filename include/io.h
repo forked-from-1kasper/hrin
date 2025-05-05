@@ -5,7 +5,7 @@
 
 void fpush(char);
 int fnext(FILE *);
-char * fdup();
-void fdrop();
+char * fdup(void);
+void fdrop(void);
 
 #endif

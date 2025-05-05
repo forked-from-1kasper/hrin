@@ -11,7 +11,7 @@ typedef struct {
 Array newArray(size_t);
 void freeArray(Array *);
 
-static inline Array * emptyArray()
+static inline Array * emptyArray(void)
 { return calloc(1, sizeof(Array)); }
 
 static inline void extendArray(Array * A, size_t size) {

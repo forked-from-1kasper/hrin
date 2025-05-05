@@ -78,11 +78,11 @@ ExprTag newExprTag(ExprTagImpl impl) {
     return newTag;
 }
 
-void initExpr() {
+void initExpr(void) {
     exprErrvalTag = newExprTag(exprErrvalImpl);
 }
 
-void deinitExpr() {
+void deinitExpr(void) {
     if (exprTagImpl != NULL)
         free(exprTagImpl);
 }

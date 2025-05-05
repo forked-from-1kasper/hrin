@@ -19,7 +19,7 @@ int fnext(FILE * stream) {
     return recv;
 }
 
-char * fdup() {
+char * fdup(void) {
     char * retbuf = realloc(outbuf, length);
     retbuf[length - 1] = '\0';
 
@@ -27,7 +27,7 @@ char * fdup() {
     return retbuf;
 }
 
-void fdrop() {
+void fdrop(void) {
     capacity = length = 0;
     free(outbuf); outbuf = NULL;
 }

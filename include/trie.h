@@ -14,7 +14,7 @@ typedef struct {
     BinaryTreeValue root;
 } Trie;
 
-Trie newTrie();
+Trie newTrie(void);
 void * findTrie(Trie *, const char *);
 void setTrie(Trie *, const char *, void *);
 void freeTrie(Trie *);

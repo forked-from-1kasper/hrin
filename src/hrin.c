@@ -115,7 +115,7 @@ void * externByte(Region * region, Array * xs) {
     else return throw(TypeErrorTag, "%s cannot be converted to “byte”", showExpr(o));
 }
 
-ErrorTag printError() {
+ErrorTag printError(void) {
     ErrorTag error = getThrownError();
     if (error == NULL) return NULL;
 

@@ -16,7 +16,7 @@ enum {
     TokenLiteral
 };
 
-char * getLexerBuffer();
+char * getLexerBuffer(void);
 
 void pushToken(int token);
 int popToken(FILE *);
