@@ -50,8 +50,6 @@ char * getLexerBuffer()
 
 void pushToken(int token) {
     if (bufferedToken < 0) bufferedToken = token;
-
-    
 }
 
 int popToken(FILE * stream) {
