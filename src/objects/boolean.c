@@ -34,7 +34,7 @@ static ExprTagImpl exprBooleanImpl = {
     .delete = deleteBoolean,
     .move   = moveBoolean,
     .equal  = equalByRef,
-    .size   = sizeof(ExprBoolean)
+    .size   = 0
 };
 
 ExprTag exprBooleanTag;

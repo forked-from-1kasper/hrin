@@ -24,7 +24,7 @@ static ExprTagImpl exprNilImpl = {
     .delete = deleteNil,
     .move   = moveNil,
     .equal  = equalByRef,
-    .size   = sizeof(ExprNil)
+    .size   = 0
 };
 
 ExprTag exprNilTag;

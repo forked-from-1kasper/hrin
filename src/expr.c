@@ -93,6 +93,12 @@ static inline void takeOwnership(Region * region, Expr * o) {
 }
 
 void * newExpr(Region * region, ExprTag tag) {
+    size_t size = exprTagImpl[tag].size;
+
+    if (size == 0) return throw(
+        RegionErrorTag, "cannot allocate static type on the heap"
+    );
+
     Expr * o = malloc(exprTagImpl[tag].size);
     if (o == NULL) return throw(OOMErrorTag, NULL);
 
