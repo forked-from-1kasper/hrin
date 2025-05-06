@@ -99,7 +99,7 @@ void * newExpr(Region * region, ExprTag tag) {
         RegionErrorTag, "cannot allocate static type on the heap"
     );
 
-    Expr * o = malloc(exprTagImpl[tag].size);
+    Expr * o = malloc(size);
     if (o == NULL) return throw(OOMErrorTag, NULL);
 
     o->tag      = tag;
