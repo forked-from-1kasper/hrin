@@ -11,7 +11,7 @@ extern ExprTag exprAtomTag;
 void initAtomTag(Region *);
 
 static inline void * newAtom(Region * region, char * buf) {
-    ExprAtom * retval = newExpr(region, exprAtomTag); IFNRET(retval);
+    ExprAtom * retval = newExpr(region, &exprAtomTag); IFNRET(retval);
 
     retval->value = buf;
 

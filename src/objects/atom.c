@@ -34,7 +34,7 @@ static bool equalAtom(void * value1, void * value2) {
     return strcmp(expr1->value, expr2->value) == 0;
 }
 
-static ExprTagImpl exprAtomImpl = {
+ExprTag exprAtomTag = {
     .eval   = evalAtom,
     .apply  = applyThrowError,
     .show   = showAtom,
@@ -44,10 +44,8 @@ static ExprTagImpl exprAtomImpl = {
     .size   = sizeof(ExprAtom)
 };
 
-ExprTag exprAtomTag;
-
 void initAtomTag(Region * region) {
     UNUSED(region);
 
-    exprAtomTag = newExprTag(exprAtomImpl);
+    newExprImmortal(&exprTag, &exprAtomTag, NULL);
 }

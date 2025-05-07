@@ -10,7 +10,7 @@ extern ExprTag exprExternTag;
 void initExternTag(Region *);
 
 static inline void * newExtern(Region * region, Extern * value) {
-    ExprExtern * retval = newExpr(region, exprExternTag);
+    ExprExtern * retval = newExpr(region, &exprExternTag);
     if (retval == NULL) return NULL;
 
     retval->value = value;

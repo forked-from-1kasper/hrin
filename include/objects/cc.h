@@ -11,7 +11,7 @@ extern ExprTag exprCCTag;
 void initCCTag(Region *);
 
 static inline void * newCC(Region * region, void * car, void * cdr) {
-    ExprCC * retval = newExpr(region, exprCCTag);
+    ExprCC * retval = newExpr(region, &exprCCTag);
     if (retval == NULL) return NULL;
 
     retval->car = car;

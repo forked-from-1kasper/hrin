@@ -4,20 +4,19 @@
 #include <common.h>
 #include <expr.h>
 
-void * evalNf(Region * region, void * value) {
-    UNUSED(region);
+#include <objects/boolean.h>
 
-    return value;
+static size_t showTag(char * buf, size_t size, void * value) {
+    if (size <= 23) return ellipsis(buf);
+
+    return snprintf(buf, size, "<#TAG %016lx>", (uintptr_t) value);
 }
 
-bool equalByRef(void * value1, void * value2) {
-    return value1 == value2;
-}
+static void * applyTag(Region * region, void * value, Array * xs) {
+    ARITY(1, xs->size);
 
-void * applyThrowError(Region * region, void * x, Array * xs) {
-    UNUSED(region); UNUSED(xs);
-
-    return throw(ApplyErrorTag, "%s is not callable", showExpr(x));
+    Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
+    return newBool(o->tag == value);
 }
 
 static size_t showErrval(char * buf, size_t size, void * value) {
@@ -27,27 +26,51 @@ static size_t showErrval(char * buf, size_t size, void * value) {
     strcpy(buf, "#ERRVAL"); return 7;
 }
 
-static void deleteErrval(void * value) {
+void * applyThrowError(Region * region, void * x, Array * xs) {
+    UNUSED(region); UNUSED(xs);
+
+    return throw(ApplyErrorTag, "%s is not callable", showExpr(x));
+}
+
+bool equalByRef(void * value1, void * value2) {
+    return value1 == value2;
+}
+
+void * evalNf(Region * region, void * value) {
+    UNUSED(region);
+
+    return value;
+}
+
+static void deleteNf(void * value) {
     UNUSED(value);
 }
 
-static void * moveErrval(Region * dest, Region * src, void * value) {
+static void * moveNf(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
 
     return value;
 }
 
-static ExprTagImpl exprErrvalImpl = {
+ExprTag exprTag = {
     .eval   = evalNf,
-    .apply  = applyThrowError,
-    .show   = showErrval,
-    .delete = deleteErrval,
-    .move   = moveErrval,
+    .apply  = applyTag,
+    .show   = showTag,
+    .delete = deleteNf,
+    .move   = moveNf,
     .equal  = equalByRef,
     .size   = 0
 };
 
-ExprTag exprErrvalTag;
+static ExprTag exprErrvalTag = {
+    .eval   = evalNf,
+    .apply  = applyThrowError,
+    .show   = showErrval,
+    .delete = deleteNf,
+    .move   = moveNf,
+    .equal  = equalByRef,
+    .size   = 0
+};
 
 void setVar(Scope * scope, const char * x, void * o) {
     setTrie(&scope->context, x, o);
@@ -64,27 +87,11 @@ Expr * getVar(Scope * scope, const char * x) {
     return NULL;
 }
 
-static ExprTag availableExprTag = 0;
-static ExprTagImpl * exprTagImpl = NULL;
-
-ExprTag newExprTag(ExprTagImpl impl) {
-    ExprTag newTag = availableExprTag;
-
-    availableExprTag++;
-
-    exprTagImpl = realloc(exprTagImpl, availableExprTag * sizeof(ExprTagImpl));
-    exprTagImpl[newTag] = impl;
-
-    return newTag;
-}
-
 void initExpr(void) {
-    exprErrvalTag = newExprTag(exprErrvalImpl);
+    newExprImmortal(&exprTag, &exprTag, &exprErrvalTag, NULL);
 }
 
 void deinitExpr(void) {
-    if (exprTagImpl != NULL)
-        free(exprTagImpl);
 }
 
 static inline void takeOwnership(Region * region, Expr * o) {
@@ -92,14 +99,12 @@ static inline void takeOwnership(Region * region, Expr * o) {
     insertAVLTree(&region->pool, o);
 }
 
-void * newExpr(Region * region, ExprTag tag) {
-    size_t size = exprTagImpl[tag].size;
-
-    if (size == 0) return throw(
+void * newExpr(Region * region, ExprTag * tag) {
+    if (tag->size == 0) return throw(
         RegionErrorTag, "cannot allocate static type on the heap"
     );
 
-    Expr * o = malloc(size);
+    Expr * o = malloc(tag->size);
     if (o == NULL) return throw(OOMErrorTag, NULL);
 
     o->tag      = tag;
@@ -110,7 +115,7 @@ void * newExpr(Region * region, ExprTag tag) {
     return o;
 }
 
-void newExprImmortal(ExprTag tag, ...) {
+void newExprImmortal(ExprTag * tag, ...) {
     va_list argv;
 
     va_start(argv, tag);
@@ -127,40 +132,36 @@ void newExprImmortal(ExprTag tag, ...) {
     va_end(argv);
 }
 
-void * apply(Region * region, void * f, Array * xs) {
-    Expr * expr = f;
-    return exprTagImpl[expr->tag].apply(region, f, xs);
+void * apply(Region * region, void * x, Array * xs) {
+    return tagof(x)->apply(region, x, xs);
 }
 
 void * eval(Region * region, void * value) {
-    Expr * o = exprTagImpl[tagof(value)].eval(region, value);
+    Expr * o = tagof(value)->eval(region, value);
     if (o == NULL) fprintf(stderr, "↳ %s\n", showExpr(value));
 
     return o;
 }
 
 size_t show(char * buf, size_t size, void * value) {
-    Expr * expr = value;
-    return exprTagImpl[expr->tag].show(buf, size, value);
+    return tagof(value)->show(buf, size, value);
 }
 
 void delete(void * value) {
-    Expr * expr = value;
-
-    exprTagImpl[expr->tag].delete(value);
+    tagof(value)->delete(value);
     free(value);
 }
 
 void invalidate(void * value) {
     Expr * expr = value;
 
-    exprTagImpl[expr->tag].delete(value);
-    expr->tag = exprErrvalTag;
+    expr->tag->delete(value);
+    expr->tag = &exprErrvalTag;
 }
 
 bool equal(void * value1, void * value2) {
     if (tagof(value1) != tagof(value2)) return false;
-    return exprTagImpl[tagof(value1)].equal(value1, value2);
+    return tagof(value1)->equal(value1, value2);
 }
 
 void * move(Region * dest, Expr * o) {
@@ -174,7 +175,7 @@ void * move(Region * dest, Expr * o) {
 
     void * retptr = o;
 
-    if (exprTagImpl[o->tag].move(dest, src, o) == NULL)
+    if (o->tag->move(dest, src, o) == NULL)
         retptr = NULL;
 
     if (dest->index < o->lifetime) {

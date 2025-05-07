@@ -31,10 +31,16 @@ struct _Region {
     Region * parent;
 };
 
-typedef int ExprTag;
-typedef struct { ExprTag tag; Region * owner; int lifetime; } Expr;
+typedef struct _ExprTag ExprTag;
 
 typedef struct {
+    ExprTag * tag;
+    Region * owner;
+    int lifetime;
+} Expr;
+
+struct _ExprTag {
+    Expr _expr;
     void * (* move)(Region * dest, Region * src, void *);
     void * (* apply)(Region *, void *, Array *);
     void * (* eval)(Region *, void *);
@@ -42,14 +48,15 @@ typedef struct {
     size_t (* show)(char *, size_t, void *);
     void (* delete)(void *);
     size_t size;
-} ExprTagImpl;
+};
+
+extern ExprTag exprTag;
 
 void setVar(Scope *, const char *, void *);
 Expr * getVar(Scope *, const char *);
 
-ExprTag newExprTag(ExprTagImpl);
-void * newExpr(Region *, ExprTag);
-void newExprImmortal(ExprTag, ...);
+void * newExpr(Region *, ExprTag *);
+void newExprImmortal(ExprTag *, ...);
 
 void * move(Region *, Expr *);
 void invalidate(void *);
@@ -73,7 +80,7 @@ void deleteRegion(Region *);
 static inline int indexof(Region * region)
 { return region == NULL ? -1 : region->index; }
 
-static inline ExprTag tagof(void * value)
+static inline ExprTag * tagof(void * value)
 { Expr * expr = value; return expr->tag; }
 
 static inline Region * ownerof(void * value)

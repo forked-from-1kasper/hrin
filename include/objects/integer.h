@@ -18,7 +18,7 @@ extern ExprTag exprIntegerTag;
 void initIntegerTag(Region *);
 
 static inline void * newInteger(Region * region, Integer value) {
-    ExprInteger * retval = newExpr(region, exprIntegerTag);
+    ExprInteger * retval = newExpr(region, &exprIntegerTag);
     if (retval == NULL) return NULL;
 
     retval->value = value;
@@ -29,7 +29,7 @@ static inline void * newInteger(Region * region, Integer value) {
 static inline void * evalEnsureInteger(Region * region, void * value) {
     void * o = eval(region, value); IFNRET(o);
 
-    if (tagof(o) != exprIntegerTag) return throw(
+    if (tagof(o) != &exprIntegerTag) return throw(
         TypeErrorTag, "%s expected to be an integer", showExpr(o)
     );
 

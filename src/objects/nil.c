@@ -17,7 +17,7 @@ static void * moveNil(Region * dest, Region * src, void * value) {
     return value;
 }
 
-static ExprTagImpl exprNilImpl = {
+ExprTag exprNilTag = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showNil,
@@ -27,12 +27,10 @@ static ExprTagImpl exprNilImpl = {
     .size   = 0
 };
 
-ExprTag exprNilTag;
 ExprNil exprNil;
 
 void initNilTag(Region * region) {
-    exprNilTag = newExprTag(exprNilImpl);
-
-    newExprImmortal(exprNilTag, &exprNil, NULL);
+    newExprImmortal(&exprTag, &exprNilTag, NULL);
+    newExprImmortal(&exprNilTag, &exprNil, NULL);
     setVar(region->scope, "nil", &exprNil);
 }

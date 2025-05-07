@@ -28,7 +28,7 @@ static bool equalByte(void * o1, void * o2) {
     return BYTE(o1)->value == BYTE(o2)->value;
 }
 
-static ExprTagImpl exprByteImpl = {
+ExprTag exprByteTag = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showByte,
@@ -38,10 +38,8 @@ static ExprTagImpl exprByteImpl = {
     .size   = sizeof(ExprByte)
 };
 
-ExprTag exprByteTag;
-
 void initByteTag(Region * region) {
     UNUSED(region);
 
-    exprByteTag = newExprTag(exprByteImpl);
+    newExprImmortal(&exprTag, &exprByteTag, NULL);
 }

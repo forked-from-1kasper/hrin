@@ -11,7 +11,7 @@ extern ExprTag exprByteTag;
 void initByteTag(Region *);
 
 static inline void * newByte(Region * region, char value) {
-    ExprByte * retval = newExpr(region, exprByteTag); IFNRET(retval);
+    ExprByte * retval = newExpr(region, &exprByteTag); IFNRET(retval);
 
     retval->value = value;
 

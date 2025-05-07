@@ -24,7 +24,7 @@ void * externDefine(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
     ExprAtom * i = getArray(xs, 0);
-    if (tagof(i) != exprAtomTag) return throw(
+    if (tagof(i) != &exprAtomTag) return throw(
         TypeErrorTag, "%s expected to be an atom", showExpr(i)
     );
 
@@ -40,7 +40,7 @@ void * externDeflocal(Region * region, Array * xs) {
     ARITY(2, xs->size);
 
     ExprAtom * i = getArray(xs, 0);
-    if (tagof(i) != exprAtomTag) return throw(
+    if (tagof(i) != &exprAtomTag) return throw(
         TypeErrorTag, "%s expected to be an atom", showExpr(i)
     );
 
@@ -80,7 +80,7 @@ void * externEval(Region * region, Array * xs) {
 void * externPrint(Region * region, Array * xs) {
     for (size_t i = 0; i < xs->size; i++) {
         void * o = eval(region, getArray(xs, i)); IFNRET(o);
-        printf("%s", tagof(o) == exprStringTag ? STRING(o)->value : showExpr(o));
+        printf("%s", tagof(o) == &exprStringTag ? STRING(o)->value : showExpr(o));
     }
 
     return &exprNil;
@@ -111,8 +111,16 @@ void * externByte(Region * region, Array * xs) {
 
     Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
 
-    if (tagof(o) == exprIntegerTag) return newByte(region, INTEGER(o)->value);
+    if (tagof(o) == &exprIntegerTag) return newByte(region, INTEGER(o)->value);
     else return throw(TypeErrorTag, "%s cannot be converted to “byte”", showExpr(o));
+}
+
+void * externTagof(Region * region, Array * xs) {
+    ARITY(1, xs->size);
+
+    Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
+
+    return tagof(o);
 }
 
 ErrorTag printError(void) {
@@ -203,6 +211,7 @@ int main(int argc, char * argv[]) {
     setVar(rootRegion->scope, "print!",    newExtern(rootRegion, externPrint));
     setVar(rootRegion->scope, "lifetime",  newExtern(rootRegion, externLifetime));
     setVar(rootRegion->scope, "byte",      newExtern(rootRegion, externByte));
+    setVar(rootRegion->scope, "tagof",     newExtern(rootRegion, externTagof));
 
     for (int i = 1; i < argc; i++) {
         FILE * fin = fopen(argv[i], "r");

@@ -30,7 +30,7 @@ static bool equalInteger(void * value1, void * value2) {
     return expr1->value == expr2->value;
 }
 
-static ExprTagImpl exprIntegerImpl = {
+ExprTag exprIntegerTag = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showInteger,
@@ -39,8 +39,6 @@ static ExprTagImpl exprIntegerImpl = {
     .equal  = equalInteger,
     .size   = sizeof(ExprInteger)
 };
-
-ExprTag exprIntegerTag;
 
 void * externAddi(Region * region, Array * xs) {
     Integer retval = 0;
@@ -190,7 +188,7 @@ void * externGti(Region * region, Array * xs) {
 }
 
 void initIntegerTag(Region * region) {
-    exprIntegerTag = newExprTag(exprIntegerImpl);
+    newExprImmortal(&exprTag, &exprIntegerTag, NULL);
 
     setVar(region->scope, "addi", newExtern(region, externAddi));
     setVar(region->scope, "subi", newExtern(region, externSubi));

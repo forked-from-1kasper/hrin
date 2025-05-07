@@ -81,7 +81,7 @@ void * takeExpr(Region * region, FILE * stream) {
         }
 
         if (token == TokenLiteral) {
-            ExprString * retval = newExpr(region, exprStringTag);
+            ExprString * retval = newExpr(region, &exprStringTag);
             retval->value = getLexerBuffer();
             return retval;
         }

@@ -126,7 +126,7 @@ static void * moveLexical(Region * dest, Region * src, void * value) {
     return retptr;
 }
 
-static ExprTagImpl exprLambdaImpl = {
+ExprTag exprLambdaTag = {
     .eval   = evalNf,
     .apply  = applyLambda,
     .show   = showLambda,
@@ -136,7 +136,7 @@ static ExprTagImpl exprLambdaImpl = {
     .size   = sizeof(ExprLexical)
 };
 
-static ExprTagImpl exprMacroImpl = {
+ExprTag exprMacroTag = {
     .eval   = evalNf,
     .apply  = applyMacro,
     .show   = showMacro,
@@ -146,11 +146,9 @@ static ExprTagImpl exprMacroImpl = {
     .size   = sizeof(ExprLexical)
 };
 
-ExprTag exprLambdaTag, exprMacroTag;
-
 Scope * global = NULL; // TODO
 
-void * newLexical(ExprTag tag, Region * region, Array vars, void * value) {
+void * newLexical(ExprTag * tag, Region * region, Array vars, void * value) {
     ExprLexical * retval = newExpr(region, tag);
     retval->scope = newScope(global); // TODO
     retval->vars  = vars;
@@ -167,11 +165,11 @@ void * newLexical(ExprTag tag, Region * region, Array vars, void * value) {
     return retval;
 }
 
-void * externLexical(ExprTag tag, Region * region, Array * xs) {
+void * externLexical(ExprTag * tag, Region * region, Array * xs) {
     if (xs->size <= 0) return throw(TypeErrorTag, "no arguments were given");
 
     for (size_t i = 0; i < xs->size - 1; i++) {
-        if (tagof(getArray(xs, i)) != exprAtomTag)
+        if (tagof(getArray(xs, i)) != &exprAtomTag)
             return throw(TypeErrorTag, "%s expected to be an atom", showExpr(getArray(xs, i)));
     }
 
@@ -186,11 +184,11 @@ void * externLexical(ExprTag tag, Region * region, Array * xs) {
 }
 
 void * externLambda(Region * region, Array * xs) {
-    return externLexical(exprLambdaTag, region, xs);
+    return externLexical(&exprLambdaTag, region, xs);
 }
 
 void * externMacro(Region * region, Array * xs) {
-    return externLexical(exprMacroTag, region, xs);
+    return externLexical(&exprMacroTag, region, xs);
 }
 
 void * externExpand(Region * region, Array * xs) {
@@ -199,7 +197,7 @@ void * externExpand(Region * region, Array * xs) {
     ExprLexical * o = eval(region, getArray(xs, 0));
     if (o == NULL) return NULL;
 
-    if (tagof(o) != exprLambdaTag && tagof(o) != exprMacroTag)
+    if (tagof(o) != &exprLambdaTag && tagof(o) != &exprMacroTag)
         return throw(TypeErrorTag, "%s expected to be a closure", showExpr(o));
 
     return o->value;
@@ -208,8 +206,7 @@ void * externExpand(Region * region, Array * xs) {
 void initLexicalTags(Region * region) {
     global = region->scope;
 
-    exprLambdaTag = newExprTag(exprLambdaImpl);
-    exprMacroTag = newExprTag(exprMacroImpl);
+    newExprImmortal(&exprTag, &exprLambdaTag, &exprMacroTag, NULL);
 
     setVar(region->scope, "λ",      newExtern(region, externLambda));
     setVar(region->scope, "Λ",      newExtern(region, externMacro));

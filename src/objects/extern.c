@@ -26,7 +26,7 @@ static void * moveExtern(Region * dest, Region * src, void * value) {
     return value;
 }
 
-static ExprTagImpl exprExternImpl = {
+ExprTag exprExternTag = {
     .eval   = evalNf,
     .apply  = applyExtern,
     .show   = showExtern,
@@ -36,10 +36,8 @@ static ExprTagImpl exprExternImpl = {
     .size   = sizeof(ExprExtern)
 };
 
-ExprTag exprExternTag;
-
 void initExternTag(Region * region) {
     UNUSED(region);
 
-    exprExternTag = newExprTag(exprExternImpl);
+    newExprImmortal(&exprTag, &exprExternTag, NULL);
 }

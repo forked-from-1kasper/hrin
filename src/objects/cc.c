@@ -13,17 +13,17 @@ size_t lengthList(void * value) {
 
     ExprCC * expr = value;
 
-    for (length = 0; tagof(expr) == exprCCTag; length++)
+    for (length = 0; tagof(expr) == &exprCCTag; length++)
         expr = expr->cdr;
 
     return length;
 }
 
 Array * expandList(void * value) {
-    if (tagof(value) == exprNilTag)
+    if (tagof(value) == &exprNilTag)
         return emptyArray();
 
-    if (tagof(value) != exprCCTag)
+    if (tagof(value) != &exprCCTag)
         return NULL;
 
     size_t size = lengthList(value);
@@ -37,7 +37,7 @@ Array * expandList(void * value) {
         curr = (ExprCC *) curr->cdr;
     }
 
-    if (tagof(curr) == exprNilTag) return retval;
+    if (tagof(curr) == &exprNilTag) return retval;
 
     freeArray(retval);
     free(retval);
@@ -104,7 +104,7 @@ static bool equalCC(void * value1, void * value2) {
     return value1 == value2 || (equal(expr1->car, expr2->car) && equal(expr2->cdr, expr2->cdr));
 }
 
-static ExprTagImpl exprCCImpl = {
+ExprTag exprCCTag = {
     .eval   = evalCC,
     .apply  = applyThrowError,
     .show   = showCC,
@@ -113,8 +113,6 @@ static ExprTagImpl exprCCImpl = {
     .equal  = equalCC,
     .size   = sizeof(ExprCC)
 };
-
-ExprTag exprCCTag;
 
 void * externList(Region * region, Array * xs) {
     void * retval = &exprNil;
@@ -133,7 +131,7 @@ static inline void * throwTypeErrorCC(void * o)
 static inline void * evalEnsureCC(Region * region, void * value) {
     void * o = eval(region, value); IFNRET(o);
 
-    if (tagof(o) != exprCCTag) return throwTypeErrorCC(o);
+    if (tagof(o) != &exprCCTag) return throwTypeErrorCC(o);
 
     return o;
 }
@@ -143,9 +141,9 @@ void * externCar(Region * region, Array * xs) {
 
     void * o = eval(region, getArray(xs, 0)); IFNRET(o);
 
-    if (tagof(o) == exprNilTag)
+    if (tagof(o) == &exprNilTag)
         return &exprNil;
-    else if (tagof(o) == exprCCTag)
+    else if (tagof(o) == &exprCCTag)
         return CC(o)->car;
     else
         return throwTypeErrorCC(o);
@@ -156,9 +154,9 @@ void * externCdr(Region * region, Array * xs) {
 
     void * o = eval(region, getArray(xs, 0)); IFNRET(o);
 
-    if (tagof(o) == exprNilTag)
+    if (tagof(o) == &exprNilTag)
         return &exprNil;
-    else if (tagof(o) == exprCCTag)
+    else if (tagof(o) == &exprCCTag)
         return CC(o)->cdr;
     else
         return throwTypeErrorCC(o);
@@ -204,7 +202,7 @@ void * externSetcdr(Region * region, Array * xs) {
 }
 
 void initCCTag(Region * region) {
-    exprCCTag = newExprTag(exprCCImpl);
+    newExprImmortal(&exprTag, &exprCCTag, NULL);
 
     setVar(region->scope, "list",    newExtern(region, externList));
     setVar(region->scope, "car",     newExtern(region, externCar));

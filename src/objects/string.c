@@ -38,7 +38,7 @@ static bool equalString(void * value1, void * value2) {
     return strcmp(expr1->value, expr2->value) == 0;
 }
 
-static ExprTagImpl exprStringImpl = {
+ExprTag exprStringTag = {
     .eval   = evalNf,
     .apply  = applyString,
     .show   = showString,
@@ -48,10 +48,8 @@ static ExprTagImpl exprStringImpl = {
     .size   = sizeof(ExprString)
 };
 
-ExprTag exprStringTag;
-
 void initStringTag(Region * region) {
     UNUSED(region);
 
-    exprStringTag = newExprTag(exprStringImpl);
+    newExprImmortal(&exprTag, &exprStringTag, NULL);
 }

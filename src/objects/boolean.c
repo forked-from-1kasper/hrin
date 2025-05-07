@@ -27,7 +27,7 @@ static void * moveBoolean(Region * dest, Region * src, void * value) {
     return value;
 }
 
-static ExprTagImpl exprBooleanImpl = {
+ExprTag exprBooleanTag = {
     .eval   = evalNf,
     .apply  = applyThrowError,
     .show   = showBoolean,
@@ -37,7 +37,6 @@ static ExprTagImpl exprBooleanImpl = {
     .size   = 0
 };
 
-ExprTag exprBooleanTag;
 ExprBoolean exprTrue, exprFalse;
 
 void * externNot(Region * region, Array * xs) {
@@ -99,9 +98,8 @@ void * externRefeq(Region * region, Array * xs) {
 }
 
 void initBooleanTag(Region * region) {
-    exprBooleanTag = newExprTag(exprBooleanImpl);
-
-    newExprImmortal(exprBooleanTag, &exprTrue, &exprFalse, NULL);
+    newExprImmortal(&exprTag, &exprBooleanTag, NULL);
+    newExprImmortal(&exprBooleanTag, &exprTrue, &exprFalse, NULL);
 
     setVar(region->scope, "true",    &exprTrue);
     setVar(region->scope, "false",   &exprFalse);
