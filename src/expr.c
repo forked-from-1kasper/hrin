@@ -91,9 +91,6 @@ void initExpr(void) {
     newExprImmortal(&exprTag, &exprTag, &exprErrvalTag, NULL);
 }
 
-void deinitExpr(void) {
-}
-
 static inline void takeOwnership(Region * region, Expr * o) {
     o->owner = region;
     insertAVLTree(&region->pool, o);

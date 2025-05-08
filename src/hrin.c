@@ -224,7 +224,5 @@ int main(int argc, char * argv[]) {
     deleteRegion(rootRegion);
     deleteScope(globalScope);
 
-    deinitExpr();
-
     return 0;
 }

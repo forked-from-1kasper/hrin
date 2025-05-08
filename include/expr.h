@@ -69,7 +69,6 @@ size_t show(char *, size_t, void *);
 bool equal(void *, void *);
 
 void initExpr(void);
-void deinitExpr(void);
 
 Scope * newScope(Scope *);
 void deleteScope(Scope *);
