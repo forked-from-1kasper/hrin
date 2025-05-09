@@ -16,22 +16,12 @@ static size_t showExtern(char * buf, size_t size, void * value) {
     return snprintf(buf, size, "<#NATIVE %016lx>", (uintptr_t) expr->value);
 }
 
-static void deleteExtern(void * value) {
-    UNUSED(value);
-}
-
-static void * moveExtern(Region * dest, Region * src, void * value) {
-    UNUSED(dest); UNUSED(src); UNUSED(value);
-
-    return value;
-}
-
 ExprTag exprExternTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyExtern,
     .show   = showExtern,
-    .delete = deleteExtern,
-    .move   = moveExtern,
+    .delete = trivDelete,
+    .move   = trivMove,
     .equal  = equalByRef,
     .size   = sizeof(ExprExtern)
 };

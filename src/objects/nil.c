@@ -7,22 +7,12 @@ static size_t showNil(char * buf, size_t size, void * value) {
     strcpy(buf, "nil"); return 3;
 }
 
-static void deleteNil(void * value) {
-    UNUSED(value);
-}
-
-static void * moveNil(Region * dest, Region * src, void * value) {
-    UNUSED(dest); UNUSED(src); UNUSED(value);
-
-    return value;
-}
-
 ExprTag exprNilTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyThrowError,
     .show   = showNil,
-    .delete = deleteNil,
-    .move   = moveNil,
+    .delete = trivDelete,
+    .move   = trivMove,
     .equal  = equalByRef,
     .size   = 0
 };

@@ -36,38 +36,38 @@ bool equalByRef(void * value1, void * value2) {
     return value1 == value2;
 }
 
-void * evalNf(Region * region, void * value) {
+void * trivEval(Region * region, void * value) {
     UNUSED(region);
 
     return value;
 }
 
-static void deleteNf(void * value) {
+void trivDelete(void * value) {
     UNUSED(value);
 }
 
-static void * moveNf(Region * dest, Region * src, void * value) {
+void * trivMove(Region * dest, Region * src, void * value) {
     UNUSED(dest); UNUSED(src); UNUSED(value);
 
     return value;
 }
 
 ExprTag exprTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyTag,
     .show   = showTag,
-    .delete = deleteNf,
-    .move   = moveNf,
+    .delete = trivDelete,
+    .move   = trivMove,
     .equal  = equalByRef,
     .size   = 0
 };
 
 static ExprTag exprErrvalTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyThrowError,
     .show   = showErrval,
-    .delete = deleteNf,
-    .move   = moveNf,
+    .delete = trivDelete,
+    .move   = trivMove,
     .equal  = equalByRef,
     .size   = 0
 };

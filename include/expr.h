@@ -90,9 +90,11 @@ static inline void copyScope(Scope * dest, Scope * src)
 
 const char * showExpr(void *);
 
-void * evalNf(Region *, void *);
 bool equalByRef(void *, void *);
 void * applyThrowError(Region *, void *, Array *);
+void * trivEval(Region *, void *);
+void trivDelete(void *);
+void * trivMove(Region * dest, Region * src, void *);
 
 static inline size_t ellipsis(char * buf)
 { strcpy(buf, "..."); return 3; }

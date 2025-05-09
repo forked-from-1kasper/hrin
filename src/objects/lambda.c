@@ -127,7 +127,7 @@ static void * moveLexical(Region * dest, Region * src, void * value) {
 }
 
 ExprTag exprLambdaTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyLambda,
     .show   = showLambda,
     .delete = deleteLexical,
@@ -137,7 +137,7 @@ ExprTag exprLambdaTag = {
 };
 
 ExprTag exprMacroTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyMacro,
     .show   = showMacro,
     .delete = deleteLexical,

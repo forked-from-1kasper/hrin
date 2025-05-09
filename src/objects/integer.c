@@ -15,27 +15,17 @@ static size_t showInteger(char * buf, size_t size, void * value) {
     return snprintf(buf, size, "%lld", expr->value);
 }
 
-static void deleteInteger(void * value) {
-    UNUSED(value);
-}
-
-static void * moveInteger(Region * dest, Region * src, void * value) {
-    UNUSED(dest); UNUSED(src); UNUSED(value);
-
-    return value;
-}
-
 static bool equalInteger(void * value1, void * value2) {
     ExprInteger * expr1 = value1, * expr2 = value2;
     return expr1->value == expr2->value;
 }
 
 ExprTag exprIntegerTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyThrowError,
     .show   = showInteger,
-    .delete = deleteInteger,
-    .move   = moveInteger,
+    .delete = trivDelete,
+    .move   = trivMove,
     .equal  = equalInteger,
     .size   = sizeof(ExprInteger)
 };

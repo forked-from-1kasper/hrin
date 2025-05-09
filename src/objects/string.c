@@ -27,23 +27,17 @@ static void deleteString(void * value) {
     free(expr->value);
 }
 
-static void * moveString(Region * dest, Region * src, void * value) {
-    UNUSED(dest); UNUSED(src); UNUSED(value);
-
-    return value;
-}
-
 static bool equalString(void * value1, void * value2) {
     ExprString * expr1 = value1, * expr2 = value2;
     return strcmp(expr1->value, expr2->value) == 0;
 }
 
 ExprTag exprStringTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyString,
     .show   = showString,
     .delete = deleteString,
-    .move   = moveString,
+    .move   = trivMove,
     .equal  = equalString,
     .size   = sizeof(ExprString)
 };

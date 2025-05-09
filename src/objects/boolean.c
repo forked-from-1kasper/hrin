@@ -17,22 +17,12 @@ static size_t showBoolean(char * buf, size_t size, void * value) {
     return 0;
 }
 
-static void deleteBoolean(void * value) {
-    UNUSED(value);
-}
-
-static void * moveBoolean(Region * dest, Region * src, void * value) {
-    UNUSED(dest); UNUSED(src); UNUSED(value);
-
-    return value;
-}
-
 ExprTag exprBooleanTag = {
-    .eval   = evalNf,
+    .eval   = trivEval,
     .apply  = applyThrowError,
     .show   = showBoolean,
-    .delete = deleteBoolean,
-    .move   = moveBoolean,
+    .delete = trivDelete,
+    .move   = trivMove,
     .equal  = equalByRef,
     .size   = 0
 };
