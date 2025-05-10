@@ -22,5 +22,6 @@ ExprNil exprNil;
 void initNilTag(Region * region) {
     newExprImmortal(&exprTag, &exprNilTag, NULL);
     newExprImmortal(&exprNilTag, &exprNil, NULL);
+
     setVar(region->scope, "nil", &exprNil);
 }

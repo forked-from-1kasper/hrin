@@ -48,4 +48,5 @@ void initAtomTag(Region * region) {
     UNUSED(region);
 
     newExprImmortal(&exprTag, &exprAtomTag, NULL);
+    setVar(region->scope, "atom", &exprAtomTag);
 }

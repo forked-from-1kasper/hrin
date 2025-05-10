@@ -91,8 +91,9 @@ void initBooleanTag(Region * region) {
     newExprImmortal(&exprTag, &exprBooleanTag, NULL);
     newExprImmortal(&exprBooleanTag, &exprTrue, &exprFalse, NULL);
 
-    setVar(region->scope, "true",    &exprTrue);
-    setVar(region->scope, "false",   &exprFalse);
+    setVar(region->scope, "boolean", &exprBooleanTag);
+    setVar(region->scope, "tt",      &exprTrue);
+    setVar(region->scope, "ff",      &exprFalse);
     setVar(region->scope, "not",     newExtern(region, externNot));
     setVar(region->scope, "andalso", newExtern(region, externAndalso));
     setVar(region->scope, "orelse",  newExtern(region, externOrelse));

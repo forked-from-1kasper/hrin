@@ -32,4 +32,5 @@ void initByteTag(Region * region) {
     UNUSED(region);
 
     newExprImmortal(&exprTag, &exprByteTag, NULL);
+    setVar(region->scope, "byte", &exprByteTag);
 }

@@ -204,6 +204,7 @@ void * externSetcdr(Region * region, Array * xs) {
 void initCCTag(Region * region) {
     newExprImmortal(&exprTag, &exprCCTag, NULL);
 
+    setVar(region->scope, "cc",      &exprCCTag);
     setVar(region->scope, "list",    newExtern(region, externList));
     setVar(region->scope, "car",     newExtern(region, externCar));
     setVar(region->scope, "cdr",     newExtern(region, externCdr));

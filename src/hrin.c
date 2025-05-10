@@ -106,7 +106,7 @@ void * externLifetime(Region * region, Array * xs) {
     }
 }
 
-void * externByte(Region * region, Array * xs) {
+void * externToByte(Region * region, Array * xs) {
     ARITY(1, xs->size);
 
     Expr * o = eval(region, getArray(xs, 0)); IFNRET(o);
@@ -210,7 +210,7 @@ int main(int argc, char * argv[]) {
     setVar(rootRegion->scope, "eval",      newExtern(rootRegion, externEval));
     setVar(rootRegion->scope, "print!",    newExtern(rootRegion, externPrint));
     setVar(rootRegion->scope, "lifetime",  newExtern(rootRegion, externLifetime));
-    setVar(rootRegion->scope, "byte",      newExtern(rootRegion, externByte));
+    setVar(rootRegion->scope, "tobyte",    newExtern(rootRegion, externToByte));
     setVar(rootRegion->scope, "tagof",     newExtern(rootRegion, externTagof));
 
     for (int i = 1; i < argc; i++) {

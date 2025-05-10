@@ -180,6 +180,8 @@ void * externGti(Region * region, Array * xs) {
 void initIntegerTag(Region * region) {
     newExprImmortal(&exprTag, &exprIntegerTag, NULL);
 
+    setVar(region->scope, "integer", &exprIntegerTag);
+
     setVar(region->scope, "addi", newExtern(region, externAddi));
     setVar(region->scope, "subi", newExtern(region, externSubi));
     setVar(region->scope, "maxi", newExtern(region, externMaxi));

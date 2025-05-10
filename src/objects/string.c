@@ -46,4 +46,5 @@ void initStringTag(Region * region) {
     UNUSED(region);
 
     newExprImmortal(&exprTag, &exprStringTag, NULL);
+    setVar(region->scope, "string", &exprStringTag);
 }
