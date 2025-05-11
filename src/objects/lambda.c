@@ -208,7 +208,11 @@ void initLexicalTags(Region * region) {
 
     newExprImmortal(&exprTag, &exprLambdaTag, &exprMacroTag, NULL);
 
-    setVar(region->scope, "λ",      newExtern(region, externLambda));
-    setVar(region->scope, "Λ",      newExtern(region, externMacro));
-    setVar(region->scope, "expand", newExtern(region, externExpand));
+    setVars(
+        region->scope,
+        "λ",      newExtern(region, externLambda),
+        "Λ",      newExtern(region, externMacro),
+        "expand", newExtern(region, externExpand),
+        NULL
+    );
 }

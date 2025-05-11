@@ -235,3 +235,19 @@ const char * showExpr(void * value) {
     show(buf, sizeof(buf), value);
     return buf;
 }
+
+void setVars(Scope * scope, ...) {
+    va_list argv;
+
+    va_start(argv, scope);
+
+    for (;;) {
+        const char * x = va_arg(argv, const char *);
+        if (x == NULL) break;
+
+        void * o = va_arg(argv, void *);
+        setVar(scope, x, o);
+    }
+
+    va_end(argv);
+}

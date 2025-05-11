@@ -180,21 +180,24 @@ void * externGti(Region * region, Array * xs) {
 void initIntegerTag(Region * region) {
     newExprImmortal(&exprTag, &exprIntegerTag, NULL);
 
-    setVar(region->scope, "integer", &exprIntegerTag);
-
-    setVar(region->scope, "addi", newExtern(region, externAddi));
-    setVar(region->scope, "subi", newExtern(region, externSubi));
-    setVar(region->scope, "maxi", newExtern(region, externMaxi));
-    setVar(region->scope, "mini", newExtern(region, externMini));
-    setVar(region->scope, "muli", newExtern(region, externMuli));
-    setVar(region->scope, "divi", newExtern(region, externDivi));
-    setVar(region->scope, "modi", newExtern(region, externModi));
-    setVar(region->scope, "negi", newExtern(region, externNegi));
-    setVar(region->scope, "andi", newExtern(region, externAndi));
-    setVar(region->scope, "ori",  newExtern(region, externOri));
-    setVar(region->scope, "xori", newExtern(region, externXori));
-    setVar(region->scope, "lei",  newExtern(region, externLei));
-    setVar(region->scope, "lti",  newExtern(region, externLti));
-    setVar(region->scope, "gei",  newExtern(region, externGei));
-    setVar(region->scope, "gti",  newExtern(region, externGti));
+    setVars(
+        region->scope,
+        "integer", &exprIntegerTag,
+        "addi",    newExtern(region, externAddi),
+        "subi",    newExtern(region, externSubi),
+        "maxi",    newExtern(region, externMaxi),
+        "mini",    newExtern(region, externMini),
+        "muli",    newExtern(region, externMuli),
+        "divi",    newExtern(region, externDivi),
+        "modi",    newExtern(region, externModi),
+        "negi",    newExtern(region, externNegi),
+        "andi",    newExtern(region, externAndi),
+        "ori",     newExtern(region, externOri),
+        "xori",    newExtern(region, externXori),
+        "lei",     newExtern(region, externLei),
+        "lti",     newExtern(region, externLti),
+        "gei",     newExtern(region, externGei),
+        "gti",     newExtern(region, externGti),
+        NULL
+    );
 }

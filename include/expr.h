@@ -55,6 +55,8 @@ extern ExprTag exprTag;
 void setVar(Scope *, const char *, void *);
 Expr * getVar(Scope *, const char *);
 
+void setVars(Scope *, ...);
+
 void * newExpr(Region *, ExprTag *);
 void newExprImmortal(ExprTag *, ...);
 

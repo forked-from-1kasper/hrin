@@ -204,11 +204,15 @@ void * externSetcdr(Region * region, Array * xs) {
 void initCCTag(Region * region) {
     newExprImmortal(&exprTag, &exprCCTag, NULL);
 
-    setVar(region->scope, "cc",      &exprCCTag);
-    setVar(region->scope, "list",    newExtern(region, externList));
-    setVar(region->scope, "car",     newExtern(region, externCar));
-    setVar(region->scope, "cdr",     newExtern(region, externCdr));
-    setVar(region->scope, "cons",    newExtern(region, externCons));
-    setVar(region->scope, "setcar!", newExtern(region, externSetcar));
-    setVar(region->scope, "setcdr!", newExtern(region, externSetcdr));
+    setVars(
+        region->scope,
+        "cc",      &exprCCTag,
+        "list",    newExtern(region, externList),
+        "car",     newExtern(region, externCar),
+        "cdr",     newExtern(region, externCdr),
+        "cons",    newExtern(region, externCons),
+        "setcar!", newExtern(region, externSetcar),
+        "setcdr!", newExtern(region, externSetcdr),
+        NULL
+    );
 }
