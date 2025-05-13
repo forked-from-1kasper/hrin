@@ -72,6 +72,10 @@ static ExprTag exprErrvalTag = {
     .size   = 0
 };
 
+void initExpr(void) {
+    newExprImmortal(&exprTag, &exprTag, &exprErrvalTag, NULL);
+}
+
 void setVar(Scope * scope, const char * x, void * o) {
     setTrie(&scope->context, x, o);
 }
@@ -85,10 +89,6 @@ Expr * getVar(Scope * scope, const char * x) {
     }
 
     return NULL;
-}
-
-void initExpr(void) {
-    newExprImmortal(&exprTag, &exprTag, &exprErrvalTag, NULL);
 }
 
 static inline void takeOwnership(Region * region, Expr * o) {
